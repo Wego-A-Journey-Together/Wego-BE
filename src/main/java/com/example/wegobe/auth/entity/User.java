@@ -1,44 +1,26 @@
 package com.example.wegobe.auth.entity;
 
-import com.example.wegobe.config.redis.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
-@Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 이메일 (null 허용 가능 - Kakao 로그인 대비)
     @Column(unique = true)
-    private String email;
+    private Long kakaoId; // 카카오 고유 식별자
 
-    private String password;
+    @Column(nullable = true)
+    private String email; // 동의 안 했을 수 있으므로 nullable
 
-    private String username;
+    @Column(nullable = false)
+    private String nickname;
 
-    private Long kakaoId; // 카카오 로그인 시 필요한 kakao 고유 ID
 
-    @Enumerated(EnumType.STRING)
-    private UserStatus status;
-
-    private String profileImage;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserRole> roles = new ArrayList<>();
-
-    public User kakaoIdUpdate(Long kakaoId) {
-        this.kakaoId = kakaoId;
-        return this;
-    }
 }
-

@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 
+/**
+ * 권한 테이블
+ */
 @Entity
 @Getter
 @NoArgsConstructor

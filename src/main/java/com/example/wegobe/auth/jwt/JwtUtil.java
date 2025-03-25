@@ -2,6 +2,7 @@ package com.example.wegobe.auth.jwt;
 
 
 import io.jsonwebtoken.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -35,7 +36,7 @@ public class JwtUtil {
         return generateToken(username, refreshTokenExpiration, roles);
     }
 
-    // 실제 토큰 생성 로직 (공통)
+    // 실제 토큰 생성 로직
     private static String generateToken(String username, long expiration, List<String> roles) {
         return Jwts.builder()
                 .setSubject(username) // 토큰 사용자 식별자
@@ -60,7 +61,7 @@ public class JwtUtil {
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
-    // 토큰 자체 유효성 검사 (예외 발생 여부로 판단)
+    // 토큰 자체 유효성 검사
     public static boolean validateToken(String token) {
         try {
             extractClaims(token);
@@ -88,5 +89,14 @@ public class JwtUtil {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
+    }
+
+    // 요청에서 Bearer 토큰 추출
+    public static String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 }
