@@ -23,10 +23,13 @@ public class KakaoOAuthClient {
     @Value("${kakao.redirect-uri}")
     private String redirectUri;
 
+
     @Value("${kakao.client-secret:}") // 없을 수도 있음
     private String clientSecret;
 
-    // ✅ 인가코드(code)로 AccessToken 받기
+
+    //  인가코드(code)로 AccessToken 받기
+
     public KakaoTokenResponse requestAccessToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
