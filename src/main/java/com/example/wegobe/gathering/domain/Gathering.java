@@ -77,4 +77,23 @@ public class Gathering extends BaseTimeEntity {
         this.hashtags = hashtags;
         this.creator = creator;
     }
+
+    public void update(
+            String title, String content, String location, String thumbnailUrl, int maxParticipants,
+            LocalDate startAt, LocalDate endAt, LocalDateTime closedAt, Gender preferredGender,
+            AgeGroup preferredAge, Category category) {
+
+        this.title = title;
+        this.content = content;
+        this.location = location;
+        this.thumbnailUrl = thumbnailUrl;
+        this.maxParticipants = maxParticipants;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.closedAt = closedAt;
+        this.preferredGender = preferredGender;
+        this.preferredAge = preferredAge;
+        this.category = category;
+
+    }
 }

@@ -17,7 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,10 +89,84 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     }
 
     /**
+     * 모임 수정
+     */
+    @Transactional
+    public GatheringResponseDto updateGathering(Long gatheringId, GatheringRequestDto updateDto) {
+        Long kakaoId = SecurityUtil.getCurrentKakaoId();
+        User user = userRepository.findByKakaoId(kakaoId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        Gathering gathering = gatheringRepository.findById(gatheringId)
+                .orElseThrow(() -> new RuntimeException("해당 동행을 찾을 수 없습니다."));
+
+        // 수정 권한 체크
+        if (!gathering.getCreator().getId().equals(user.getId())) {
+            throw new RuntimeException("본인이 작성한 동행만 수정할 수 있습니다.");
+        }
+
+        gathering.update(
+                updateDto.getTitle(),
+                updateDto.getContent(),
+                updateDto.getAddress(),
+                updateDto.getThumbnailUrl(),
+                updateDto.getMaxParticipants(),
+                updateDto.getStartAt(),
+                updateDto.getEndAt(),
+                updateDto.getClosedAt(),
+                updateDto.getPreferredGender(),
+                updateDto.getPreferredAgeGroup(),
+                updateDto.getCategory()
+        );
+
+        updateHashtags(gathering, updateDto.getHashtags()); // 해시태그 별도 update
+
+        return GatheringResponseDto.fromEntity(gathering);
+    }
+
+    /**
+     * 모임 삭제
+     */
+    public void deleteGathering(Long id) {
+        Gathering gathering = gatheringRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Gathering not found"));
+        gatheringRepository.delete(gathering);
+    }
+
+    /**
      * 썸네일이 없을 경우 기본 이미지 URL 반환
      * 이미지 생성되면 해당 이미지 URL로 변환 예정
      */
     private String getThumbnailUrlOrDefault(String thumbnailUrl) {
         return (thumbnailUrl != null && !thumbnailUrl.isEmpty()) ? thumbnailUrl : DEFAULT_THUMBNAIL_URL;
+    }
+
+    /**
+     * 동행 수정 시, 해시태그 비교 메서드
+     * 기존 해시태그와 변경된 해시태그만 비교하여 update
+     */
+    private void updateHashtags(Gathering gathering, List<String> newHashtagNames) {
+        if (newHashtagNames == null) return;
+
+        // 현재 해시태그 리스트 문자열 추출
+        Set<String> currentTagNames = gathering.getHashtags().stream()
+                .map(HashTag::getTag)
+                .collect(Collectors.toSet());
+
+        Set<String> newTagNames = new HashSet<>(newHashtagNames);
+
+        // 삭제할 해시태그 찾기
+        List<HashTag> tagsToRemove = gathering.getHashtags().stream()
+                .filter(tag -> !newTagNames.contains(tag.getTag()))
+                .collect(Collectors.toList());
+
+        // 추가할 해시태그 찾기
+        List<HashTag> tagsToAdd = newHashtagNames.stream()
+                .filter(tag -> !currentTagNames.contains(tag))
+                .map(tag -> new HashTag(tag, gathering))
+                .collect(Collectors.toList());
+
+        gathering.getHashtags().removeAll(tagsToRemove);
+        gathering.getHashtags().addAll(tagsToAdd);
     }
 }

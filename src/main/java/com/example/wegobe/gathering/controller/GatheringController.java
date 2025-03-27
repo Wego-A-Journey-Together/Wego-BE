@@ -4,6 +4,7 @@ import com.example.wegobe.gathering.dto.request.GatheringRequestDto;
 import com.example.wegobe.gathering.dto.response.GatheringListResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringResponseDto;
 import com.example.wegobe.gathering.service.GatheringService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +26,8 @@ public class GatheringController {
         return ResponseEntity.ok(id);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<GatheringResponseDto> getGathering(@PathVariable Long id) {
+    @GetMapping("/{gatheringId}")
+    public ResponseEntity<GatheringResponseDto> getGathering(@PathVariable("gatheringId") Long id) {
         GatheringResponseDto response = gatheringService.getGatheringById(id);
         return ResponseEntity.ok(response);
     }
@@ -36,4 +37,19 @@ public class GatheringController {
         return ResponseEntity.ok(gatheringService.findAll(pageable));
     }
 
+    @PatchMapping("/{gatheringId}")
+    public ResponseEntity<GatheringResponseDto> updateGathering(
+            @PathVariable("gatheringId") Long id,
+            @Valid @RequestBody  GatheringRequestDto updateDto) {
+
+        // 동행 수정 후 수정된 동행 정보 반환
+        GatheringResponseDto responseDto = gatheringService.updateGathering(id, updateDto);
+
+        return ResponseEntity.ok(responseDto);
+    }
+    @DeleteMapping("/{gatheringId}")
+    public ResponseEntity<Void> deleteGathering(@PathVariable("gatheringId") Long id) {
+        gatheringService.deleteGathering(id);
+        return ResponseEntity.noContent().build();
+    }
 }
