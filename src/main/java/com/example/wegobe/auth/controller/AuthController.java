@@ -1,5 +1,6 @@
 package com.example.wegobe.auth.controller;
 
+import com.example.wegobe.auth.dto.request.KakaoCodeRequest;
 import com.example.wegobe.auth.dto.response.LoginResponse;
 import com.example.wegobe.auth.dto.request.ReissueRequestDto;
 import com.example.wegobe.auth.dto.response.AccessTokenResponseDto;
@@ -29,11 +30,18 @@ public class AuthController {
     private final UserRepository userRepository;
 
     // 카카오 로그인 콜백 클라이언트의 인가코드 -> 카카오 정보 불러와서 서버 엑세스 응답
-    @GetMapping("/kakao/callback")
-    public ResponseEntity<LoginResponse> kakaoLogin(@RequestParam String code) {
+//    @GetMapping("/kakao/callback")
+//    public ResponseEntity<LoginResponse> kakaoLogin(@RequestParam String code) {
+//        LoginResponse response = kakaoService.kakaoLogin(code);
+//        return ResponseEntity.ok(response); // AccessToken 포함 응답
+//    }
+    @PostMapping("/kakao/callback")
+    public ResponseEntity<LoginResponse> kakaoLogin(@RequestBody KakaoCodeRequest request) {
+        String code = request.getCode();
         LoginResponse response = kakaoService.kakaoLogin(code);
-        return ResponseEntity.ok(response); // AccessToken 포함 응답
+        return ResponseEntity.ok(response);
     }
+
 
 
     // 액세스토큰 재발급

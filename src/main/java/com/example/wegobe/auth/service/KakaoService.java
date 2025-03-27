@@ -38,6 +38,7 @@ public class KakaoService {
         KakaoTokenResponse tokenResponse = kakaoOAuthClient.requestAccessToken(code);
         String kakaoAccessToken = tokenResponse.getAccess_token();
 
+
         // 2. accessToken으로 사용자 정보 가져오기
         KakaoUserInfoResponse userInfo = kakaoOAuthClient.requestUserInfo(kakaoAccessToken);
         Long kakaoId = userInfo.getId();
@@ -67,6 +68,7 @@ public class KakaoService {
         // 7. 클라이언트에 응답
         return LoginResponse.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 }
