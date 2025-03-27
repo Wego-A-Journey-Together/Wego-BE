@@ -6,8 +6,14 @@ import com.example.wegobe.config.SecurityUtil;
 import com.example.wegobe.gathering.domain.Gathering;
 import com.example.wegobe.gathering.domain.HashTag;
 import com.example.wegobe.gathering.dto.request.GatheringRequestDto;
+import com.example.wegobe.gathering.dto.response.GatheringListResponseDto;
+import com.example.wegobe.gathering.dto.response.GatheringResponseDto;
 import com.example.wegobe.gathering.repository.GatheringRepository;
+import com.example.wegobe.global.paging.PageableService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class GatheringService {
+public class GatheringService implements PageableService<Gathering, GatheringListResponseDto> {
 
     private final GatheringRepository gatheringRepository;
     private final UserRepository userRepository;
@@ -60,12 +66,31 @@ public class GatheringService {
     }
 
     /**
+     * 모임 단일 조회
+     */
+    @Transactional
+    public GatheringResponseDto getGatheringById(Long id) {
+        Gathering gathering = gatheringRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Gathering not found"));
+
+        return GatheringResponseDto.fromEntity(gathering);
+    }
+
+    /**
+     * 모든 모임 목록 조회
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Page<GatheringListResponseDto> findAll(Pageable pageable) {
+        return gatheringRepository.findAll(pageable)
+                .map(GatheringListResponseDto::fromEntity);
+    }
+
+    /**
      * 썸네일이 없을 경우 기본 이미지 URL 반환
      * 이미지 생성되면 해당 이미지 URL로 변환 예정
-      */
+     */
     private String getThumbnailUrlOrDefault(String thumbnailUrl) {
         return (thumbnailUrl != null && !thumbnailUrl.isEmpty()) ? thumbnailUrl : DEFAULT_THUMBNAIL_URL;
     }
-
 }
-
