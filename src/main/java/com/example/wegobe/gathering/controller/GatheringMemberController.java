@@ -37,4 +37,25 @@ public class GatheringMemberController {
         gatheringMemberService.cancelApplying(gatheringId, kakaoId);
         return ResponseEntity.ok("동행 신청이 취소되었습니다.");
     }
+    /**
+     * 동행 신청 수락
+     */
+    @PatchMapping("/{gatheringId}/accept/{userId}")
+    public ResponseEntity<String> acceptApplication(@PathVariable Long gatheringId, @PathVariable Long userId) {
+        Long kakaoId = SecurityUtil.getCurrentKakaoId();
+        gatheringMemberService.acceptApply(gatheringId, userId, kakaoId);
+        return ResponseEntity.ok("동행 신청을 수락하였습니다.");
+    }
+
+    /**
+     * 수락된 동행 취소 (수락 철회)
+     */
+    @PatchMapping("/{gatheringId}/block/{userId}")
+    public ResponseEntity<String> cancelAcceptedApplication(@PathVariable Long gatheringId, @PathVariable Long userId) {
+        Long kakaoId = SecurityUtil.getCurrentKakaoId();
+        gatheringMemberService.cancelParticipator(gatheringId, userId, kakaoId);
+        return ResponseEntity.ok("동행 참여를 취소하였습니다.");
+    }
+
+
 }

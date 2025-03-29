@@ -33,4 +33,12 @@ public class GatheringMember {
         this.gathering = gathering;
         this.status = status;
     }
+    // 신청 수락
+    public void accept() {
+        this.status = GatheringStatus.ACCEPTED;
+    }
+    // 수락 취소
+    public void cancelByHost() {
+        this.status = GatheringStatus.BLOCKED;
+    }
 }

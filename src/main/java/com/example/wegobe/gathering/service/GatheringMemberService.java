@@ -65,6 +65,38 @@ public class GatheringMemberService {
         gatheringMemberRepository.delete(gatheringMember);
     }
 
+    // 동행 신청 수락
+    public void acceptApply(Long gatheringId, Long userId, Long kakaoId) {
+
+        User host = getUserByKakaoId(kakaoId);
+        Gathering gathering = getGatheringById(gatheringId);
+
+        // 동행 주최자만 수락할 수 있으므로 권한 확인
+        validateHost(gathering, host);
+        // 동행 참여 신청자 조회
+        User participant = getUserById(userId);
+
+        // 동행 참여 신청 내역 확인
+        GatheringMember gatheringMember = getMember(participant, gathering);
+        // 동행 참여 신청 상태 변경 Applying -> accepted
+        gatheringMember.accept();
+
+    }
+
+    // 수락된 동행 취소 (삭제 X, 상태 변경)
+    public void cancelParticipator(Long gatheringId, Long userId, Long kakaoId) {
+        User host = getUserByKakaoId(kakaoId);
+        Gathering gathering = getGatheringById(gatheringId);
+
+        validateHost(gathering, host);
+
+        User participant = getUserById(userId);
+        GatheringMember gatheringMember = getMember(participant, gathering);
+
+        // 동행 참여 신청 상태 변경 accepted -> blocked
+        gatheringMember.cancelByHost();
+
+    }
 
 
 
@@ -87,5 +119,18 @@ public class GatheringMemberService {
     private GatheringMember getMember(User user, Gathering gathering) {
         return gatheringMemberRepository.findByUserAndGathering(user, gathering)
                 .orElseThrow(() -> new RuntimeException("신청 기록이 없습니다."));
+    }
+
+    // 신청하는 유저의 정보 조회
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    }
+
+    // host 권한 조회
+    private void validateHost(Gathering gathering, User host) {
+        if (!gathering.getCreator().equals(host)) {
+            throw new RuntimeException("동행 생성자만 이 작업을 수행할 수 있습니다.");
+        }
     }
 }
