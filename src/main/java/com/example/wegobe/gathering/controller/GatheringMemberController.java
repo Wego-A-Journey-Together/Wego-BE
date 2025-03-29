@@ -1,11 +1,14 @@
 package com.example.wegobe.gathering.controller;
 
 import com.example.wegobe.config.SecurityUtil;
+import com.example.wegobe.gathering.dto.response.GatheringMemberResponseDto;
 import com.example.wegobe.gathering.service.GatheringMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -56,6 +59,22 @@ public class GatheringMemberController {
         gatheringMemberService.cancelParticipator(gatheringId, userId, kakaoId);
         return ResponseEntity.ok("동행 참여를 취소하였습니다.");
     }
+    /**
+     * 해당 동행의 신청된 유저들 목록 조회
+     */
+    @GetMapping("/appliers/{gatheringId}")
+    public ResponseEntity<List<GatheringMemberResponseDto>> getAppliers(@PathVariable Long gatheringId) {
 
+        Long kakaoId = SecurityUtil.getCurrentKakaoId();
+        return ResponseEntity.ok(gatheringMemberService.getAppliersList(gatheringId, kakaoId));
+    }
 
+    /**
+     * 특정 동행에 참여중인 유저들 목록 조회
+     */
+    @GetMapping("/participants/{gatheringId}")
+    public ResponseEntity<List<GatheringMemberResponseDto>> getParticipants(@PathVariable Long gatheringId) {
+
+        return ResponseEntity.ok(gatheringMemberService.getParticipantsList(gatheringId));
+    }
 }

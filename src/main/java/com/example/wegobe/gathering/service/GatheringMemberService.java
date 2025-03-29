@@ -5,13 +5,16 @@ import com.example.wegobe.auth.repository.UserRepository;
 import com.example.wegobe.gathering.domain.Gathering;
 import com.example.wegobe.gathering.domain.GatheringMember;
 import com.example.wegobe.gathering.domain.enums.GatheringStatus;
+import com.example.wegobe.gathering.dto.response.GatheringMemberResponseDto;
 import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -97,7 +100,29 @@ public class GatheringMemberService {
         gatheringMember.cancelByHost();
 
     }
+    // 주최자가 동행 신청한 유저 목록 조회
+    public List<GatheringMemberResponseDto> getAppliersList(Long gatheringId, Long kakaoId) {
 
+        User host = getUserByKakaoId(kakaoId);
+        Gathering gathering = getGatheringById(gatheringId);
+
+        validateHost(gathering, host);
+
+        return gatheringMemberRepository.findByGathering(gathering)
+                .stream()
+                .map(GatheringMemberResponseDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 특정 동행에 참여 확정된 유저 조회 (수락된 유저들 목록)
+    public List<GatheringMemberResponseDto> getParticipantsList(Long gatheringId) {
+        Gathering gathering = getGatheringById(gatheringId);
+
+        return gatheringMemberRepository.findByGatheringAndStatus(gathering, GatheringStatus.ACCEPTED)
+                .stream()
+                .map(GatheringMemberResponseDto::fromEntity)
+                .collect(Collectors.toList());
+    }
 
 
     /**
