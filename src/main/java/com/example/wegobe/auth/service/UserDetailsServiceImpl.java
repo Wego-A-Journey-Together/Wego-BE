@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -35,5 +36,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .password("kakao") // 사용되지 않음
                 .authorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")))
                 .build();
+    }
+
+    public User findByKakaoId(Long kakaoId) {
+        return userRepository.findByKakaoId(kakaoId)
+                .orElseThrow(() -> new NoSuchElementException("해당 사용자를 찾을 수 없습니다."));
     }
 }

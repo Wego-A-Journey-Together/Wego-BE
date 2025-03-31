@@ -12,12 +12,12 @@ import java.util.List;
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
     /**
-     * 특정 채팅방의 모든 메시지를 발송 시간 기준 오름차순으로 조회
+     * 특정 채팅방의 모든 메시지를 발송 시간 기준 내림차순 으로 조회 -> 최신순
      *
      * @param roomId 채팅방 ID
      * @return 정렬된 메시지 목록
      */
-    List<ChatMessage> findByChatRoomIdOrderBySentAtAsc(Long roomId);
+    List<ChatMessage> findByChatRoomIdOrderBySentAtDesc(Long roomId);
 
     /**
      * 안 읽은 메시지 수를 카운트함
