@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +32,7 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     private final UserRepository userRepository;
 
     @Value("${thumbnail.url}")
-    private String DEFAULT_THUMBNAIL_URL;
+    private String[] DEFAULT_THUMBNAIL_URLS;
 
     /**
      * 모임 생성
@@ -111,7 +112,7 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
         // 썸네일 삭제될 경우 기본 이미지 지정 로직 추가
         String thumbnailUrl = updateDto.getThumbnailUrl();
         if (thumbnailUrl == null || thumbnailUrl.trim().isEmpty()) {
-            thumbnailUrl = getThumbnailUrlOrDefault(null);  // 기본 이미지 URL 적용
+            thumbnailUrl = getThumbnailUrlOrDefault(thumbnailUrl);  // 기본 이미지 URL 적용
         }
 
         gathering.update(
@@ -143,12 +144,24 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     }
 
     /**
-     * 썸네일이 없을 경우 기본 이미지 URL 반환
-     * 이미지 생성되면 해당 이미지 URL로 변환 예정
+     * 썸네일이 없을 경우 기본 이미지 URL 지정
+     * 랜덤한 기본 이미지 URL 반환
      */
     private String getThumbnailUrlOrDefault(String thumbnailUrl) {
-        return (thumbnailUrl != null && !thumbnailUrl.isEmpty()) ? thumbnailUrl : DEFAULT_THUMBNAIL_URL;
+        if (thumbnailUrl == null || thumbnailUrl.trim().isEmpty()) {
+            return getRandomDefaultThumbnail();
+        }
+        return thumbnailUrl;
     }
+
+    /**
+     * 기본 이미지 URL 중 하나를 랜덤으로 선택
+     */
+    private String getRandomDefaultThumbnail() {
+        int randomIndex = ThreadLocalRandom.current().nextInt(DEFAULT_THUMBNAIL_URLS.length);  // 배열 길이 확인
+        return DEFAULT_THUMBNAIL_URLS[randomIndex];
+    }
+
 
     /**
      * 동행 수정 시, 해시태그 비교 메서드
