@@ -10,6 +10,8 @@ import com.example.wegobe.auth.jwt.JwtUtil;
 import com.example.wegobe.auth.repository.UserRepository;
 import com.example.wegobe.auth.service.KakaoService;
 import com.example.wegobe.config.redis.RedisService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
+@Tag(name = "Auth API", description = "카카오 로그인 및 사용자 인증 관련 API")
 public class AuthController {
 
     private final KakaoService kakaoService;
@@ -29,12 +32,7 @@ public class AuthController {
     private final RedisService redisService;
     private final UserRepository userRepository;
 
-    // 카카오 로그인 콜백 클라이언트의 인가코드 -> 카카오 정보 불러와서 서버 엑세스 응답
-//    @GetMapping("/kakao/callback")
-//    public ResponseEntity<LoginResponse> kakaoLogin(@RequestParam String code) {
-//        LoginResponse response = kakaoService.kakaoLogin(code);
-//        return ResponseEntity.ok(response); // AccessToken 포함 응답
-//    }
+    @Operation(summary = "카카오 로그인", description = "인가 코드(code)로 로그인 정보를 전달")
     @PostMapping("/kakao/callback")
     public ResponseEntity<LoginResponse> kakaoLogin(@RequestBody KakaoCodeRequest request) {
         String code = request.getCode();
@@ -45,6 +43,7 @@ public class AuthController {
 
 
     // 액세스토큰 재발급
+    @Operation(summary = "액세스 토큰 재발급", description = "기존 액세스 토큰과 리프레시 토큰으로 새로운 액세스 토큰을 발급")
     @PostMapping("/reissue")
     public ResponseEntity<AccessTokenResponseDto> reissue(@RequestBody ReissueRequestDto request, HttpServletRequest httpRequest) {
         String accessToken = jwtUtil.resolveToken(httpRequest);
@@ -55,6 +54,7 @@ public class AuthController {
     }
 
     // 로그아웃
+    @Operation(summary = "로그아웃", description = "Redis에서 RefreshToken을 제거해서 로그아웃")
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
@@ -64,6 +64,7 @@ public class AuthController {
     }
 
     // 내 정보 조회
+    @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 정보를 조회")
     @GetMapping("/me")
     public ResponseEntity<UserInfoResponseDto> getMyInfo(HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
