@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +32,7 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("WEGO 동행 API")
                         .version("v1")
-                        .description("WEGO 프로젝트 API 문서입니다."))
-                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"));
+                        .description("WEGO 프로젝트 API 문서입니다."));
+                // 인증이 필요한 API에만 @SecurityRequirement(name="Bearer Authentication") 사용합니다.
     }
 }
