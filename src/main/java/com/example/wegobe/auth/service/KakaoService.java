@@ -42,8 +42,12 @@ public class KakaoService {
         // 2. accessToken으로 사용자 정보 가져오기
         KakaoUserInfoResponse userInfo = kakaoOAuthClient.requestUserInfo(kakaoAccessToken);
         Long kakaoId = userInfo.getId();
-        String email = userInfo.getKakao_account().getEmail(); // nullable
-        String nickname = userInfo.getKakao_account().getProfile().getNickname();
+
+        // 이메일 없을 경우, kakaoId 기반 가짜 이메일 생성
+        String rawEmail = userInfo.getKakao_account().getEmail();
+        final String email = (rawEmail == null || rawEmail.isEmpty())
+                ? kakaoId + "@wego.com"
+                : rawEmail;        String nickname = userInfo.getKakao_account().getProfile().getNickname();
 
         // 3. DB에 사용자 존재 여부 확인
         Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
@@ -69,6 +73,9 @@ public class KakaoService {
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .email(email)
+                .nickname(nickname)
+                .kakaoId(kakaoId)
                 .build();
     }
 }
