@@ -14,4 +14,5 @@ public class LoginResponse {
     private String refreshToken;
     private String email;
     private String nickname;
+    private long kakaoId;
 }
