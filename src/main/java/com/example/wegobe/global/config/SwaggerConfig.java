@@ -8,14 +8,10 @@ import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@OpenAPIDefinition(
-        servers = {
-                @Server(url = "http://44.205.250.207:8080", description = "IP 서버"),
-                @Server(url = "http://localhost:8080", description = "로컬 서버")
-        })
 @Configuration
 @SecurityScheme(
         name = "Bearer Authentication",
@@ -25,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
         in = SecuritySchemeIn.HEADER
 )
 public class SwaggerConfig {
+    @Value("${SPRINGDOC_SERVER_URL:http://localhost:8080}")
 
     @Bean
     public OpenAPI openAPI() {
