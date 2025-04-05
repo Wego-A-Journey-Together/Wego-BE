@@ -10,6 +10,10 @@ import com.example.wegobe.gathering.domain.Gathering;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -19,6 +23,12 @@ public class CommentService {
     private final UserRepository userRepository;
     private final GatheringRepository gatheringRepository;
 
+    /**
+     * 댓글 등록
+     * 부모 댓글이 없을 경우는 새 댓글
+     * 부모 댓글이 존재할 경우 대댓글로
+     * 댓글 본문 반환
+     */
     public CommentResponseDto addComment(Long gatheringId, Long kakaoId, CommentRequestDto request) {
         User user = userRepository.findByKakaoId(kakaoId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
@@ -41,5 +51,28 @@ public class CommentService {
 
         return CommentResponseDto.fromEntity(commentRepository.save(comment));
     }
+    
+    // 대댓글만 조회
+    @Transactional(readOnly = true)
+    public Page<CommentResponseDto> getReplies(Long gatheringId, Long parentId, Pageable pageable){
+        Comment parent = commentRepository.findById(parentId)
+                .orElseThrow(() -> new RuntimeException("부모 댓글을 찾을 수 없습니다."));
 
+        if (!parent.getGathering().getId().equals(gatheringId)) {
+            throw new RuntimeException("잘못된 요청입니다. 이 댓글은 해당 동행에 속하지 않습니다.");
+        }
+
+        return commentRepository.findByParent(parent, pageable)
+                .map(CommentResponseDto::fromEntity);
+    }
+
+    // 대댓글 포함 댓글 목록 조회
+    @Transactional(readOnly = true)
+    public Page<CommentResponseDto> getComments(Long gatheringId, Pageable pageable) {
+        Gathering gathering = gatheringRepository.findById(gatheringId)
+                .orElseThrow(() -> new RuntimeException("동행을 찾을 수 없습니다."));
+
+        return commentRepository.findByGatheringAndParentIsNullOrderByCreatedDateAsc(gathering, pageable)
+                .map(CommentResponseDto::fromEntity);
+    }
 }
