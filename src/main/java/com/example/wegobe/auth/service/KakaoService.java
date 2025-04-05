@@ -60,7 +60,7 @@ public class KakaoService {
         );
 
         // 4. JWT subject로 이메일이 없으면 kakaoId 사용
-        String subject = (email != null) ? email : String.valueOf(kakaoId);
+        String subject =  String.valueOf(kakaoId);
 
         // 5. JWT 발급
         String accessToken = JwtUtil.createAccessToken(subject, Collections.singletonList("USER"));
