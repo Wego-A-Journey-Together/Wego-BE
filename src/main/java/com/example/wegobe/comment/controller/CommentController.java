@@ -6,9 +6,7 @@ import com.example.wegobe.comment.service.CommentService;
 import com.example.wegobe.config.SecurityUtil;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -41,5 +39,21 @@ public class CommentController {
     public ResponseEntity<Page<CommentResponseDto>> getCommentsWithReplies(@PathVariable Long gatheringId,
                                                                            @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(commentService.getComments(gatheringId, pageable));
+    }
+
+    // 댓글 수정
+    @PatchMapping("/comments/{commentId}")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long commentId,
+                                                            @RequestBody String content) {
+        CommentResponseDto response = commentService.updateComment(commentId, SecurityUtil.getCurrentKakaoId(), content);
+        return ResponseEntity.ok(response);
+    }
+    // 댓글 삭제
+    @DeleteMapping("/comments/{commentId}")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
+        commentService.deleteComment(commentId, SecurityUtil.getCurrentKakaoId());
+        return ResponseEntity.noContent().build();
     }
 }
