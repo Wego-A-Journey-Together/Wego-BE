@@ -1,5 +1,6 @@
 package com.example.wegobe.comment.repository;
 
+import com.example.wegobe.auth.entity.User;
 import com.example.wegobe.comment.domain.Comment;
 import com.example.wegobe.gathering.domain.Gathering;
 import org.springframework.data.domain.Page;
@@ -12,4 +13,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 대댓글만 조회할 경우
     Page<Comment> findByParent(Comment parent, Pageable pageable);
+
+    // 특정 유저가 남긴 댓글
+    Page<Comment> findByWriter(User writer, Pageable pageable);
 }

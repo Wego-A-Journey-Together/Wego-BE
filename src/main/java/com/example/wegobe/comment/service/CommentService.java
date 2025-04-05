@@ -108,4 +108,16 @@ public class CommentService {
         }
         commentRepository.delete(comment);
     }
+
+    /**
+     * 특정 유저가 남긴 댓글 조회
+     */
+    @Transactional(readOnly = true)
+    public Page<CommentResponseDto> getMyComments(Long kakaoId, Pageable pageable) {
+        User user = userRepository.findByKakaoId(kakaoId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        return commentRepository.findByWriter(user, pageable)
+                .map(CommentResponseDto::fromEntity);
+    }
 }
