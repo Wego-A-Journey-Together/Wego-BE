@@ -1,5 +1,6 @@
 package com.example.wegobe.review.controller;
 
+import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.review.dto.ReviewRequestDto;
 import com.example.wegobe.review.dto.ReviewResponseDto;
 import com.example.wegobe.review.service.ReviewService;
@@ -13,6 +14,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Comment", description = "소감 API")
 @RestController
@@ -48,9 +51,17 @@ public class ReviewController {
 
     // 내가 주최한 동행에 대한 리뷰
     @Operation(summary = "내가 받은 소감 조회", description = "내가 주최한 동행에 달린 소감을 조회할 수 있습니다.(최신순)")
-    @GetMapping("/received")
     @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/received")
     public Page<ReviewResponseDto> getReviewsForMyGatherings(@PageableDefault(size = 20) Pageable pageable) {
         return reviewService.getReviewsForMyGatherings(pageable);
+    }
+
+    // 내가 참여했지만, 아직 소감 등록 안한 동행 정보 조회
+    @Operation(summary = "작성 가능한 소감 조회", description = "동행에 참여했지만, 아직 남기지 않은 소감 목록을 조회할 수 있습니다.")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/unwritten")
+    public ResponseEntity<List<GatheringSimpleResponseDto>> getUnwrittenReviewGatherings() {
+        return ResponseEntity.ok(reviewService.getUnwrittenReviewGatherings());
     }
 }

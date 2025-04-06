@@ -18,4 +18,5 @@ public interface GatheringMemberRepository extends JpaRepository<GatheringMember
 
     boolean existsByUserAndGatheringAndStatus(User user, Gathering gathering, GatheringStatus status);
 
+    List<GatheringMember> findByUserAndStatus(User user, GatheringStatus status);
 }

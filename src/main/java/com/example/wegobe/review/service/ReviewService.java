@@ -3,7 +3,9 @@ package com.example.wegobe.review.service;
 import com.example.wegobe.auth.entity.User;
 import com.example.wegobe.auth.service.UserService;
 import com.example.wegobe.gathering.domain.Gathering;
+import com.example.wegobe.gathering.domain.GatheringMember;
 import com.example.wegobe.gathering.domain.enums.GatheringStatus;
+import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import com.example.wegobe.review.domain.Review;
@@ -14,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,4 +86,19 @@ public class ReviewService {
                 .map(ReviewResponseDto::fromEntity);
     }
 
+    /**
+     * 내가 참여한 동행 중 리뷰 안 쓴 동행 목록
+     */
+    public List<GatheringSimpleResponseDto> getUnwrittenReviewGatherings() {
+        User user = userService.getCurrentUser();
+
+        // 참여한 동행 중 ACCEPTED 상태
+        List<GatheringMember> participated = gatheringMemberRepository.findByUserAndStatus(user, GatheringStatus.ACCEPTED);
+
+        return participated.stream()
+                .map(GatheringMember::getGathering)
+                .filter(gathering -> reviewRepository.findByWriterAndGathering(user, gathering).isEmpty())
+                .map(GatheringSimpleResponseDto::fromEntity)
+                .collect(Collectors.toList());
+    }
 }
