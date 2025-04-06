@@ -195,4 +195,11 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
         gathering.getHashtags().removeAll(tagsToRemove);
         gathering.getHashtags().addAll(tagsToAdd);
     }
+
+    // 검색하기
+    @Transactional(readOnly = true)
+    public Page<GatheringListResponseDto> searchByKeyword(String keyword, Pageable pageable) {
+        return gatheringRepository.searchByTitleOrHashtag(keyword, pageable)
+                .map(GatheringListResponseDto::fromEntity);
+    }
 }
