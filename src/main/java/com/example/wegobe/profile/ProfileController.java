@@ -2,6 +2,7 @@ package com.example.wegobe.profile;
 
 import com.example.wegobe.auth.entity.User;
 import com.example.wegobe.auth.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,8 @@ public class ProfileController {
     @Value("${thumbnail.url}")
     private String DEFAULT_THUMBNAIL_URL;
 
+    @Tag(name = "Profile", description = "내 프로필 가져하기")
+
     @GetMapping("/me")
     public ResponseEntity<ProfileDto> getMyProfile() {
         User user = userService.getCurrentUser();
@@ -33,6 +36,7 @@ public class ProfileController {
                         .build()
         );
     }
+    @Tag(name = "Profile", description = "내 프로필 추가/수정하기")
 
     @PutMapping("/me")
     public ResponseEntity<String> updateMyProfile(@RequestBody ProfileDto dto) {
