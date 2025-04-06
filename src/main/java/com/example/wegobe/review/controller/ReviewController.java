@@ -1,6 +1,7 @@
 package com.example.wegobe.review.controller;
 
 import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
+import com.example.wegobe.review.dto.MyReviewResponseDto;
 import com.example.wegobe.review.dto.ReviewRequestDto;
 import com.example.wegobe.review.dto.ReviewResponseDto;
 import com.example.wegobe.review.service.ReviewService;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Comment", description = "소감 API")
+@Tag(name = "Review", description = "소감 API")
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
@@ -44,8 +45,9 @@ public class ReviewController {
 
     // 내가 쓴 리뷰 조회
     @Operation(summary = "내가 쓴 소감들 조회", description = "내가 작성한 모든 소감을 조회할 수 있습니다.(최신순)")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/me")
-    public Page<ReviewResponseDto> getMyReviews(@PageableDefault(size = 20) Pageable pageable) {
+    public Page<MyReviewResponseDto> getMyReviews(@PageableDefault(size = 20) Pageable pageable) {
         return reviewService.getMyReviews(pageable);
     }
 

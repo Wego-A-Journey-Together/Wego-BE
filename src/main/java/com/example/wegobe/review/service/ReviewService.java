@@ -9,6 +9,7 @@ import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import com.example.wegobe.review.domain.Review;
+import com.example.wegobe.review.dto.MyReviewResponseDto;
 import com.example.wegobe.review.dto.ReviewRequestDto;
 import com.example.wegobe.review.dto.ReviewResponseDto;
 import com.example.wegobe.review.repository.ReviewRepository;
@@ -71,10 +72,10 @@ public class ReviewService {
     /**
      * 내가 작성한 리뷰 목록
      */
-    public Page<ReviewResponseDto> getMyReviews(Pageable pageable) {
+    public Page<MyReviewResponseDto> getMyReviews(Pageable pageable) {
         User user = userService.getCurrentUser();
         return reviewRepository.findAllByWriterOrderByCreatedDateDesc(user, pageable)
-                .map(ReviewResponseDto::fromEntity);
+                .map(MyReviewResponseDto::fromEntity);
     }
 
     /**
