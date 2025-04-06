@@ -1,11 +1,11 @@
 package com.example.wegobe.gathering.dto.response;
 
-import com.example.wegobe.auth.dto.response.UserInfoResponseDto;
 import com.example.wegobe.gathering.domain.enums.AgeGroup;
 import com.example.wegobe.gathering.domain.enums.Category;
 import com.example.wegobe.gathering.domain.enums.Gender;
 import com.example.wegobe.gathering.domain.Gathering;
 import com.example.wegobe.gathering.domain.HashTag;
+import com.example.wegobe.profile.UserProfileDto;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -36,7 +36,7 @@ public class GatheringResponseDto {
 
     private List<String> hashtags;
 
-    private UserInfoResponseDto creator;
+    private UserProfileDto creator;
 
     public static GatheringResponseDto fromEntity(Gathering gathering) {
         return GatheringResponseDto.builder()
@@ -57,11 +57,7 @@ public class GatheringResponseDto {
                 .hashtags(gathering.getHashtags().stream()
                         .map(HashTag::getTag)
                         .collect(Collectors.toList()))
-                .creator(UserInfoResponseDto.builder() // 주최자 정보 변환
-                        .kakaoId(gathering.getCreator().getKakaoId())
-                        .nickname(gathering.getCreator().getNickname())
-                        .email(gathering.getCreator().getEmail())
-                        .build())
+                .creator(UserProfileDto.fromEntity(gathering.getCreator()))
                 .build();
     }
 
