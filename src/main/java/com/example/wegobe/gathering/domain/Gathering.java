@@ -42,6 +42,9 @@ public class Gathering extends BaseTimeEntity {
 
     private String location;            // 도로명주소
 
+    private Double latitude;            // 위도
+    private Double longitude;           // 경도
+
     @Enumerated(EnumType.STRING)
     private Gender preferredGender;
 
@@ -60,12 +63,14 @@ public class Gathering extends BaseTimeEntity {
     private User creator; // 주최자
 
     @Builder
-    public Gathering(String title, String content, String location, String thumbnailUrl, int maxParticipants,
+    public Gathering(String title, String content, String location, Double latitude, Double longitude, String thumbnailUrl, int maxParticipants,
                      LocalDate startAt, LocalDate endAt, LocalDateTime closedAt, Gender preferredGender,
                      AgeGroup preferredAge, Category category, List<HashTag> hashtags, User creator) {
         this.title = title;
         this.content = content;
         this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.thumbnailUrl = thumbnailUrl;
         this.maxParticipants = maxParticipants;
         this.startAt = startAt;
@@ -79,13 +84,15 @@ public class Gathering extends BaseTimeEntity {
     }
 
     public void update(
-            String title, String content, String location, String thumbnailUrl, int maxParticipants,
+            String title, String content, String location,Double latitude, Double longitude, String thumbnailUrl, int maxParticipants,
             LocalDate startAt, LocalDate endAt, LocalDateTime closedAt, Gender preferredGender,
             AgeGroup preferredAge, Category category) {
 
         this.title = title;
         this.content = content;
         this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.thumbnailUrl = thumbnailUrl;
         this.maxParticipants = maxParticipants;
         this.startAt = startAt;
