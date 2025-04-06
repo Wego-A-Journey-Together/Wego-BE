@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Category {
-    PART("부분동행"),
+    FRIEND("친구 동행"),
+    FAMILY("부부 동행"),
     TOUR("투어 동행"),
     SHARE("숙박 공유"),
     SHOW("전시/공연 동행"),
