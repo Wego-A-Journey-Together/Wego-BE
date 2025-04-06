@@ -30,6 +30,8 @@ public class GatheringRequestDto {
     private String thumbnailUrl;
 
     private String address;
+    private Double latitude;
+    private Double longitude;
 
     private int maxParticipants;
 

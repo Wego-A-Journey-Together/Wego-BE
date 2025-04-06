@@ -59,6 +59,8 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
                 .endAt(requestDto.getEndAt())
                 .closedAt(requestDto.getClosedAt())
                 .location(requestDto.getAddress())
+                .latitude(requestDto.getLatitude())
+                .longitude(requestDto.getLongitude())
                 .maxParticipants(requestDto.getMaxParticipants())
                 .thumbnailUrl(thumbnailUrl)
                 .preferredAge(requestDto.getPreferredAgeGroup())
@@ -119,6 +121,8 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
                 updateDto.getTitle(),
                 updateDto.getContent(),
                 updateDto.getAddress(),
+                updateDto.getLatitude(),
+                updateDto.getLongitude(),
                 thumbnailUrl,
                 updateDto.getMaxParticipants(),
                 updateDto.getStartAt(),

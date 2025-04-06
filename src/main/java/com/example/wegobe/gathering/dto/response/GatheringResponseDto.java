@@ -27,6 +27,8 @@ public class GatheringResponseDto {
     private LocalDateTime closedAt;
     private int maxParticipants;
     private String location;
+    private Double latitude;
+    private Double longitude;
 
     private Gender preferredGender;
     private AgeGroup preferredAge;
@@ -46,6 +48,8 @@ public class GatheringResponseDto {
                 .closedAt(gathering.getClosedAt())
                 .maxParticipants(gathering.getMaxParticipants())
                 .location(gathering.getLocation())
+                .latitude(gathering.getLatitude())
+                .longitude(gathering.getLongitude())
                 .preferredGender(gathering.getPreferredGender())
                 .preferredAge(gathering.getPreferredAge())
                 .category(gathering.getCategory())
