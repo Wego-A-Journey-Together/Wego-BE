@@ -14,4 +14,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Optional<Review> findByWriterAndGathering(User writer, Gathering gathering);
 
     Page<Review> findAllByGatheringOrderByCreatedDateDesc(Gathering gathering, Pageable pageable);
+
+    Page<Review> findAllByWriterOrderByCreatedDateDesc(User writer, Pageable pageable);
+
+    Page<Review> findAllByGathering_CreatorOrderByCreatedDateDesc(User creator, Pageable pageable);
 }

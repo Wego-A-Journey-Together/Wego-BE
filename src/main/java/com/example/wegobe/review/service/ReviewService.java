@@ -63,4 +63,22 @@ public class ReviewService {
                 .map(ReviewResponseDto::fromEntity);
     }
 
+    /**
+     * 내가 작성한 리뷰 목록
+     */
+    public Page<ReviewResponseDto> getMyReviews(Pageable pageable) {
+        User user = userService.getCurrentUser();
+        return reviewRepository.findAllByWriterOrderByCreatedDateDesc(user, pageable)
+                .map(ReviewResponseDto::fromEntity);
+    }
+
+    /**
+     * 내가 주최한 동행에 대한 리뷰 목록
+     */
+    public Page<ReviewResponseDto> getReviewsForMyGatherings(Pageable pageable) {
+        User user = userService.getCurrentUser();
+        return reviewRepository.findAllByGathering_CreatorOrderByCreatedDateDesc(user, pageable)
+                .map(ReviewResponseDto::fromEntity);
+    }
+
 }
