@@ -8,8 +8,11 @@ import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import com.example.wegobe.review.domain.Review;
 import com.example.wegobe.review.dto.ReviewRequestDto;
+import com.example.wegobe.review.dto.ReviewResponseDto;
 import com.example.wegobe.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -48,6 +51,16 @@ public class ReviewService {
                 .build();
 
         return reviewRepository.save(review).getId();
+    }
+
+    /**
+     * 동행별 리뷰 조회 (최신순)
+     */
+    public Page<ReviewResponseDto> getReviewsByGathering(Long gatheringId, Pageable pageable) {
+        Gathering gathering = gatheringRepository.findById(gatheringId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 동행입니다."));
+        return reviewRepository.findAllByGatheringOrderByCreatedDateDesc(gathering, pageable)
+                .map(ReviewResponseDto::fromEntity);
     }
 
 }
