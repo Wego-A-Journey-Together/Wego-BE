@@ -2,6 +2,7 @@ package com.example.wegobe.gathering.dto.response;
 
 import com.example.wegobe.gathering.domain.GatheringMember;
 import com.example.wegobe.gathering.domain.enums.GatheringStatus;
+import com.example.wegobe.profile.UserProfileDto;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -13,13 +14,13 @@ import lombok.Getter;
 @Builder
 public class GatheringMemberResponseDto {
     private Long userId;
-    private String nickname;
+    private UserProfileDto user;
     private GatheringStatus status;
 
     public static GatheringMemberResponseDto fromEntity(GatheringMember member) {
         return GatheringMemberResponseDto.builder()
                 .userId(member.getUser().getId())
-                .nickname(member.getUser().getNickname())
+                .user(UserProfileDto.fromEntity(member.getUser()))
                 .status(member.getStatus())
                 .build();
     }
