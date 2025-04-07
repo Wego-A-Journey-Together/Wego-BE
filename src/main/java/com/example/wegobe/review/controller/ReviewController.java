@@ -37,14 +37,14 @@ public class ReviewController {
     }
 
     // 동행별 리뷰 조회
-    @Operation(summary = "특정 동행에 대한 소감 조회", description = "동행에 달린 소감을 조회할 수 있습니다.")
+    @Operation(summary = "특정 동행에 대한 소감 조회", description = "특정 동행에 달린 소감을 조회할 수 있습니다.")
     @GetMapping("/gathering/{gatheringId}")
     public Page<ReviewResponseDto> getReviewsByGathering(@PathVariable Long gatheringId, @PageableDefault(size = 20) Pageable pageable) {
         return reviewService.getReviewsByGathering(gatheringId, pageable);
     }
 
     // 내가 쓴 리뷰 조회
-    @Operation(summary = "내가 쓴 소감들 조회", description = "내가 작성한 모든 소감을 조회할 수 있습니다.(최신순)")
+    @Operation(summary = "내가 쓴 소감들 조회", description = "내가 참여한 동행에 대해 작성한 소감을 조회할 수 있습니다.(최신순)")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/me")
     public Page<MyReviewResponseDto> getMyReviews(@PageableDefault(size = 20) Pageable pageable) {

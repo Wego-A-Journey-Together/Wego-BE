@@ -19,7 +19,6 @@ public class GatheringSimpleResponseDto {
     private String thumbnailUrl;
     private LocalDate startAt;
     private LocalDate endAt;
-    private String location;
     private Gender preferredGender;
     private AgeGroup preferredAge;
 
@@ -30,7 +29,6 @@ public class GatheringSimpleResponseDto {
                 .thumbnailUrl(gathering.getThumbnailUrl())
                 .startAt(gathering.getStartAt())
                 .endAt(gathering.getEndAt())
-                .location(gathering.getLocation())
                 .preferredGender(gathering.getPreferredGender())
                 .preferredAge(gathering.getPreferredAge())
                 .build();
