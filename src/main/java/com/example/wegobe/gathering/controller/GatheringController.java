@@ -1,5 +1,6 @@
 package com.example.wegobe.gathering.controller;
 
+import com.example.wegobe.gathering.dto.request.GatheringFilterRequestDto;
 import com.example.wegobe.gathering.dto.request.GatheringRequestDto;
 import com.example.wegobe.gathering.dto.response.GatheringListResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringResponseDto;
@@ -76,4 +77,14 @@ public class GatheringController {
         gatheringService.deleteGathering(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "동행 필터링 조회", description = "조건에 맞는 동행을 필터링해서 최신순으로 조회합니다.")
+    @GetMapping("/filter")
+    public ResponseEntity<Page<GatheringListResponseDto>> filterGatherings(
+            GatheringFilterRequestDto filterDto,
+            @PageableDefault(page = 0, size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(gatheringService.filterGatherings(filterDto, pageable));
+    }
+
 }
