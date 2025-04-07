@@ -4,12 +4,13 @@ package com.example.wegobe.gathering.dto.request;
 import com.example.wegobe.gathering.domain.enums.AgeGroup;
 import com.example.wegobe.gathering.domain.enums.Category;
 import com.example.wegobe.gathering.domain.enums.Gender;
+import lombok.Data;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
-@Getter
+@Data
 public class GatheringFilterRequestDto {
 
     private String address;

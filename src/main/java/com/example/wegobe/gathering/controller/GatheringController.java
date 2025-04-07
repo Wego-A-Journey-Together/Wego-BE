@@ -81,10 +81,10 @@ public class GatheringController {
     @Operation(summary = "동행 필터링 조회", description = "조건에 맞는 동행을 필터링해서 최신순으로 조회합니다.")
     @GetMapping("/filter")
     public ResponseEntity<Page<GatheringListResponseDto>> filterGatherings(
-            GatheringFilterRequestDto filterDto,
+            @ModelAttribute GatheringFilterRequestDto filterDto,
             @PageableDefault(page = 0, size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable
     ) {
+    
         return ResponseEntity.ok(gatheringService.filterGatherings(filterDto, pageable));
     }
-
 }

@@ -204,6 +204,7 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
                 .map(GatheringListResponseDto::fromEntity);
     }
 
+    // 동행 필터링하기
     @Transactional(readOnly = true)
     public Page<GatheringListResponseDto> filterGatherings(GatheringFilterRequestDto filter, Pageable pageable) {
         return gatheringRepository.findByFilters(filter, pageable)
