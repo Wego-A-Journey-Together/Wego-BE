@@ -26,7 +26,36 @@ public class GatheringRepositoryImpl implements GatheringRepositoryCustom {
     public Page<Gathering> findByFilters(GatheringFilterRequestDto filter, Pageable pageable) {
         QGathering g = QGathering.gathering;
 
-        return new PageImpl<>();
+        // 조건에 맞는 데이터 목록 조회 (주소, 시작일이후 종료일이전, 카테로그일치, 인원수 이상, 성별일치, 연령대일치,최신순 정렬, 페이지시작,크기)
+        List<Gathering> content = queryFactory.selectFrom(g)
+                .where(
+                        addressContains(filter.getAddress()),
+                        startDateAfter(filter.getStartDate()),
+                        endDateBefore(filter.getEndDate()),
+                        categoryEq(filter.getCategory()),
+                        maxParticipantsGte(filter.getMaxParticipants()),
+                        genderEq(filter.getPreferredGender()),
+                        ageEq(filter.getPreferredAge())
+                )
+                .orderBy(g.createdDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // 페이지 네이션 용
+        long total = queryFactory.selectFrom(g)
+                .where(
+                        addressContains(filter.getAddress()),
+                        startDateAfter(filter.getStartDate()),
+                        endDateBefore(filter.getEndDate()),
+                        categoryEq(filter.getCategory()),
+                        maxParticipantsGte(filter.getMaxParticipants()),
+                        genderEq(filter.getPreferredGender()),
+                        ageEq(filter.getPreferredAge())
+                )
+                .fetchCount();
+
+        return new PageImpl<>(content, pageable, total);
 
     }
     // 헬퍼 메서드들
