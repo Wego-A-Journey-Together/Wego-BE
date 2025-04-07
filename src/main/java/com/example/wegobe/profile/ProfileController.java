@@ -48,5 +48,11 @@ public class ProfileController {
         return ResponseEntity.status(HttpStatus.OK).body("프로필이 성공적으로 수정되었습니다.");
 
     }
+    @Tag(name = "Profile", description = "다른 유저 프로필 조회")
+    @GetMapping("/{kakaoId}")
+    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable Long kakaoId) {
+        User user = userService.getUserByKakaoId(kakaoId);
+        return ResponseEntity.ok(UserProfileDto.fromEntity(user));
+    }
 }
 
