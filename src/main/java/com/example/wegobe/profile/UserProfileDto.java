@@ -21,7 +21,10 @@ public class UserProfileDto {
     public static UserProfileDto fromEntity(User user) {
         return UserProfileDto.builder()
                 .nickname(user.getNickname())
-                .thumbnailUrl(user.getThumbnailUrl())
+                .thumbnailUrl(
+                        user.getThumbnailUrl() != null ? user.getThumbnailUrl() :
+                                "https://wegotiptaparticleimageuploadersuperultraggorgeousbucket.s3.ap-northeast-2.amazonaws.com/default/yaho"
+                )
                 .statusMessage(user.getStatusMessage())
                 .gender(user.getGender())
                 .ageGroup(user.getAgeGroup())

@@ -31,4 +31,9 @@ public class UserService {
         );
         userRepository.save(user);
     }
+
+    public User getUserByKakaoId(Long kakaoId) {
+        return userRepository.findByKakaoId(kakaoId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다."));
+    }
 }

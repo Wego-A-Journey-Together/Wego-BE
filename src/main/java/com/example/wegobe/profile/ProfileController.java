@@ -19,23 +19,23 @@ public class ProfileController {
     @Value("${thumbnail.url}")
     private String DEFAULT_THUMBNAIL_URL;
 
-    @Tag(name = "Profile", description = "내 프로필 가져하기")
-
-    @GetMapping("/me")
-    public ResponseEntity<ProfileDto> getMyProfile() {
-        User user = userService.getCurrentUser();
-
-        return ResponseEntity.ok(
-                ProfileDto.builder()
-                        .nickname(user.getNickname())
-                        .email(user.getEmail())
-                        .statusMessage(user.getStatusMessage())
-                        .thumbnailUrl(user.getThumbnailUrl() != null ? user.getThumbnailUrl() : DEFAULT_THUMBNAIL_URL)
-                        .gender(user.getGender())
-                        .ageGroup(user.getAgeGroup())
-                        .build()
-        );
-    }
+//    @Tag(name = "Profile", description = "내 프로필 가져하기")
+//
+//    @GetMapping("/me")
+//    public ResponseEntity<ProfileDto> getMyProfile() {
+//        User user = userService.getCurrentUser();
+//
+//        return ResponseEntity.ok(
+//                ProfileDto.builder()
+//                        .nickname(user.getNickname())
+//                        .email(user.getEmail())
+//                        .statusMessage(user.getStatusMessage())
+//                        .thumbnailUrl(user.getThumbnailUrl() != null ? user.getThumbnailUrl() : DEFAULT_THUMBNAIL_URL)
+//                        .gender(user.getGender())
+//                        .ageGroup(user.getAgeGroup())
+//                        .build()
+//        );
+//    }
     @Tag(name = "Profile", description = "내 프로필 추가/수정하기")
 
     @PutMapping("/me")
@@ -47,6 +47,12 @@ public class ProfileController {
         userService.updateProfile(fixed);
         return ResponseEntity.status(HttpStatus.OK).body("프로필이 성공적으로 수정되었습니다.");
 
+    }
+    @Tag(name = "Profile", description = "다른 유저 프로필 조회")
+    @GetMapping("/{kakaoId}")
+    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable Long kakaoId) {
+        User user = userService.getUserByKakaoId(kakaoId);
+        return ResponseEntity.ok(UserProfileDto.fromEntity(user));
     }
 }
 
