@@ -9,6 +9,7 @@ import com.example.wegobe.gathering.dto.request.GatheringFilterRequestDto;
 import com.example.wegobe.gathering.dto.request.GatheringRequestDto;
 import com.example.wegobe.gathering.dto.response.GatheringListResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringResponseDto;
+import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import com.example.wegobe.global.paging.PageableService;
 import jakarta.persistence.EntityNotFoundException;
@@ -146,6 +147,18 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
         Gathering gathering = gatheringRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Gathering not found"));
         gatheringRepository.delete(gathering);
+    }
+
+    /**
+     * 내가 등록한 동행 조회
+     */
+    public Page<GatheringSimpleResponseDto> getMyGatherings(Pageable pageable) {
+        Long kakaoId = SecurityUtil.getCurrentKakaoId();
+        User user = userRepository.findByKakaoId(kakaoId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        return gatheringRepository.findByCreator(user, pageable)
+                .map(GatheringSimpleResponseDto::fromEntity);
     }
 
     /**
