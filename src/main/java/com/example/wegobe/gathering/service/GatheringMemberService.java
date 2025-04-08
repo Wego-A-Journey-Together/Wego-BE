@@ -2,10 +2,12 @@ package com.example.wegobe.gathering.service;
 
 import com.example.wegobe.auth.entity.User;
 import com.example.wegobe.auth.repository.UserRepository;
+import com.example.wegobe.config.SecurityUtil;
 import com.example.wegobe.gathering.domain.Gathering;
 import com.example.wegobe.gathering.domain.GatheringMember;
 import com.example.wegobe.gathering.domain.enums.GatheringStatus;
 import com.example.wegobe.gathering.dto.response.GatheringMemberResponseDto;
+import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import lombok.RequiredArgsConstructor;
@@ -124,6 +126,17 @@ public class GatheringMemberService {
                 .collect(Collectors.toList());
     }
 
+    // 동행 신청이 받아들여진 즉, 내가 참여 중인 동행 목록 조회
+    public List<GatheringSimpleResponseDto> getMyJoinedGatherings() {
+        Long kakaoId = SecurityUtil.getCurrentKakaoId();
+        User user = userRepository.findByKakaoId(kakaoId)
+                .orElseThrow(() -> new RuntimeException("사용자 없음"));
+
+        return gatheringMemberRepository.findByUserAndStatus(user, GatheringStatus.ACCEPTED)
+                .stream()
+                .map(member -> GatheringSimpleResponseDto.fromEntity(member.getGathering()))
+                .collect(Collectors.toList());
+    }
 
     /**
      * 유틸 메서드 분리
