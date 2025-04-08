@@ -2,7 +2,7 @@ package com.example.wegobe.gathering.service;
 
 import com.example.wegobe.auth.entity.User;
 import com.example.wegobe.auth.repository.UserRepository;
-import com.example.wegobe.config.SecurityUtil;
+import com.example.wegobe.auth.service.UserService;
 import com.example.wegobe.gathering.domain.Gathering;
 import com.example.wegobe.gathering.domain.GatheringMember;
 import com.example.wegobe.gathering.domain.enums.GatheringStatus;
@@ -26,11 +26,12 @@ public class GatheringMemberService {
     private final GatheringMemberRepository gatheringMemberRepository;
     private final UserRepository userRepository;
     private final GatheringRepository gatheringRepository;
+    private final UserService userService;
 
     // 동행 참여 신청
-    public void applyGathering(Long gatheringId, Long kakaoId) {
+    public void applyGathering(Long gatheringId) {
         // 1. 유저 정보 조회
-        User user = getUserByKakaoId(kakaoId);
+        User user = userService.getCurrentUser();
         // 2. 동행 아이디로 동행 조회
         Gathering gathering = getGatheringById(gatheringId);
 
@@ -60,8 +61,8 @@ public class GatheringMemberService {
 
 
     // 동행 참여 신청 취소
-    public void cancelApplying(Long gatheringId, Long kakaoId) {
-        User user = getUserByKakaoId(kakaoId);
+    public void cancelApplying(Long gatheringId) {
+        User user = userService.getCurrentUser();
         Gathering gathering = getGatheringById(gatheringId);
 
         // 동행 참여 신청 내역 확인
@@ -71,9 +72,9 @@ public class GatheringMemberService {
     }
 
     // 동행 신청 수락
-    public void acceptApply(Long gatheringId, Long userId, Long kakaoId) {
+    public void acceptApply(Long gatheringId, Long userId) {
 
-        User host = getUserByKakaoId(kakaoId);
+        User host = userService.getCurrentUser();
         Gathering gathering = getGatheringById(gatheringId);
 
         // 동행 주최자만 수락할 수 있으므로 권한 확인
@@ -89,8 +90,8 @@ public class GatheringMemberService {
     }
 
     // 수락된 동행 취소 (삭제 X, 상태 변경)
-    public void cancelParticipator(Long gatheringId, Long userId, Long kakaoId) {
-        User host = getUserByKakaoId(kakaoId);
+    public void cancelParticipator(Long gatheringId, Long userId) {
+        User host = userService.getCurrentUser();
         Gathering gathering = getGatheringById(gatheringId);
 
         validateHost(gathering, host);
@@ -102,10 +103,11 @@ public class GatheringMemberService {
         gatheringMember.cancelByHost();
 
     }
-    // 주최자가 동행 신청한 유저 목록 조회
-    public List<GatheringMemberResponseDto> getAppliersList(Long gatheringId, Long kakaoId) {
 
-        User host = getUserByKakaoId(kakaoId);
+    // 주최자가 동행 신청한 유저 목록 조회
+    public List<GatheringMemberResponseDto> getAppliersList(Long gatheringId) {
+
+        User host = userService.getCurrentUser();
         Gathering gathering = getGatheringById(gatheringId);
 
         validateHost(gathering, host);
@@ -128,9 +130,7 @@ public class GatheringMemberService {
 
     // 동행 신청이 받아들여진 즉, 내가 참여 중인 동행 목록 조회
     public List<GatheringSimpleResponseDto> getMyJoinedGatherings() {
-        Long kakaoId = SecurityUtil.getCurrentKakaoId();
-        User user = userRepository.findByKakaoId(kakaoId)
-                .orElseThrow(() -> new RuntimeException("사용자 없음"));
+        User user = userService.getCurrentUser();
 
         return gatheringMemberRepository.findByUserAndStatus(user, GatheringStatus.ACCEPTED)
                 .stream()
@@ -141,11 +141,6 @@ public class GatheringMemberService {
     /**
      * 유틸 메서드 분리
      */
-    // 사용자 인증 정보 조회
-    private User getUserByKakaoId(Long kakaoId) {
-        return userRepository.findByKakaoId(kakaoId)
-                .orElseThrow(() -> new RuntimeException("인증된 사용자가 아닙니다."));
-    }
 
     // 동행 정보 조회
     private Gathering getGatheringById(Long gatheringId) {
