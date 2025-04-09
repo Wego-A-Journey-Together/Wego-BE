@@ -38,7 +38,7 @@ public class ReviewController {
     // 동행별 리뷰 조회
     @Operation(summary = "특정 동행에 대한 소감 조회", description = "특정 동행에 달린 소감을 조회할 수 있습니다.")
     @GetMapping("/gathering/{gatheringId}")
-    public Page<ReviewResponseDto> getReviewsByGathering(@PathVariable Long gatheringId, @PageableDefault(size = 20) Pageable pageable) {
+    public Page<ReviewResponseDto> getReviewsByGathering(@PathVariable Long gatheringId, @PageableDefault(page=0, size = 10) Pageable pageable) {
         return reviewService.getReviewsByGathering(gatheringId, pageable);
     }
 

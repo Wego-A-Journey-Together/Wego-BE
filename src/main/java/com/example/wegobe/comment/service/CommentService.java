@@ -83,7 +83,7 @@ public class CommentService {
      * 댓글 수정
      */
     @Transactional
-    public CommentResponseDto updateComment(Long commentId,String content) {
+    public CommentResponseDto updateComment(Long commentId, String content) {
         User user = userService.getCurrentUser();
 
         Comment comment = commentRepository.findById(commentId)
@@ -99,11 +99,13 @@ public class CommentService {
     /**
      * 댓글 삭제
      */
-    public void deleteComment(Long commentId, Long kakaoId) {
+    public void deleteComment(Long commentId) {
+        User user = userService.getCurrentUser();
+
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
 
-        if (!comment.getWriter().getKakaoId().equals(kakaoId)) {
+        if (!comment.getWriter().getId().equals(user.getId())) {
             throw new RuntimeException("본인의 댓글만 삭제할 수 있습니다.");
         }
         commentRepository.delete(comment);

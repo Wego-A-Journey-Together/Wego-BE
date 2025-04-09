@@ -35,7 +35,7 @@ public class CommentController {
     @Operation(summary = "대댓글 조회", description = "특정 댓글의 대댓글만 조회합니다.")
     @GetMapping("/{gatheringId}/comments/{parentId}/replies")
     public ResponseEntity<Page<CommentResponseDto>> getReplies(@PathVariable Long gatheringId, @PathVariable Long parentId,
-                                                               Pageable pageable) {
+                                                               @PageableDefault(page=0, size = 10) Pageable pageable) {
         return ResponseEntity.ok(commentService.getReplies(gatheringId, parentId, pageable));
     }
 
@@ -43,7 +43,7 @@ public class CommentController {
     @Operation(summary = "대댓글 포함 댓글 조회", description = "20개 기준 오름차순으로 댓글 목록을 조회합니다.")
     @GetMapping("/{gatheringId}/comments")
     public ResponseEntity<Page<CommentResponseDto>> getCommentsWithReplies(@PathVariable Long gatheringId,
-                                                                           @PageableDefault(size = 20) Pageable pageable) {
+                                                                           @PageableDefault(page=0, size = 10) Pageable pageable) {
         return ResponseEntity.ok(commentService.getComments(gatheringId, pageable));
     }
 
@@ -61,7 +61,7 @@ public class CommentController {
     @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
-        commentService.deleteComment(commentId, SecurityUtil.getCurrentKakaoId());
+        commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }
 }
