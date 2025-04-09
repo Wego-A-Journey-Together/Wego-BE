@@ -5,6 +5,7 @@ import com.example.wegobe.auth.repository.UserRepository;
 import com.example.wegobe.config.SecurityUtil;
 import com.example.wegobe.gathering.domain.Gathering;
 import com.example.wegobe.gathering.domain.HashTag;
+import com.example.wegobe.gathering.dto.request.GatheringFilterRequestDto;
 import com.example.wegobe.gathering.dto.request.GatheringRequestDto;
 import com.example.wegobe.gathering.dto.response.GatheringListResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringResponseDto;
@@ -200,6 +201,13 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     @Transactional(readOnly = true)
     public Page<GatheringListResponseDto> searchByKeyword(String keyword, Pageable pageable) {
         return gatheringRepository.searchByTitleOrHashtag(keyword, pageable)
+                .map(GatheringListResponseDto::fromEntity);
+    }
+
+    // 동행 필터링하기
+    @Transactional(readOnly = true)
+    public Page<GatheringListResponseDto> filterGatherings(GatheringFilterRequestDto filter, Pageable pageable) {
+        return gatheringRepository.findByFilters(filter, pageable)
                 .map(GatheringListResponseDto::fromEntity);
     }
 }
