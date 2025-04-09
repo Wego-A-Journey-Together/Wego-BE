@@ -12,6 +12,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class UserProfileDto {
+    private Long kakaoId;
     private String nickname;
     private String thumbnailUrl;
     private String statusMessage;
@@ -20,6 +21,7 @@ public class UserProfileDto {
 
     public static UserProfileDto fromEntity(User user) {
         return UserProfileDto.builder()
+                .kakaoId(user.getKakaoId())
                 .nickname(user.getNickname())
                 .thumbnailUrl(
                         user.getThumbnailUrl() != null ? user.getThumbnailUrl() :
