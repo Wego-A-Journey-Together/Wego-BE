@@ -4,15 +4,17 @@ import com.example.wegobe.gathering.domain.enums.AgeGroup;
 import com.example.wegobe.gathering.domain.enums.Category;
 import com.example.wegobe.gathering.domain.enums.Gender;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GatheringRequestDto {
 
     private String title;
