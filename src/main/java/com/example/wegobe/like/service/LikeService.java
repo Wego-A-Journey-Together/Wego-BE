@@ -1,8 +1,7 @@
 package com.example.wegobe.like.service;
 
 import com.example.wegobe.auth.entity.User;
-import com.example.wegobe.auth.repository.UserRepository;
-import com.example.wegobe.config.SecurityUtil;
+import com.example.wegobe.auth.service.UserService;
 import com.example.wegobe.gathering.domain.Gathering;
 import com.example.wegobe.gathering.dto.response.GatheringResponseDto;
 import com.example.wegobe.gathering.repository.GatheringRepository;
@@ -22,8 +21,8 @@ import java.util.stream.Collectors;
 public class LikeService {
 
     private final LikeRepository likeRepository;
-    private final UserRepository userRepository;
     private final GatheringRepository gatheringRepository;
+    private final UserService userService;
 
     /**
      * 찜 등록 삭제
@@ -31,9 +30,7 @@ public class LikeService {
      */
     @Transactional
     public LikeResponseDto aboutLike(Long gatheringId) {
-        Long kakaoId = SecurityUtil.getCurrentKakaoId();
-        User user = userRepository.findByKakaoId(kakaoId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        User user = userService.getCurrentUser();
 
         Gathering gathering = gatheringRepository.findById(gatheringId)
                 .orElseThrow(() -> new RuntimeException("해당 동행을 찾을 수 없습니다."));
@@ -58,9 +55,7 @@ public class LikeService {
      */
     @Transactional(readOnly = true)
     public boolean isLiked(Long gatheringId) {
-        Long kakaoId = SecurityUtil.getCurrentKakaoId();
-        User user = userRepository.findByKakaoId(kakaoId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        User user = userService.getCurrentUser();
 
         return likeRepository.existsByUserAndGathering(user,
                 gatheringRepository.findById(gatheringId)
@@ -71,9 +66,8 @@ public class LikeService {
      * 특정 유저가 찜한 동행 목록 조회
      */
     @Transactional(readOnly = true)
-    public List<GatheringResponseDto> getLikedGatherings(Long kakaoId) {
-        User user = userRepository.findByKakaoId(kakaoId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    public List<GatheringResponseDto> getLikedGatherings() {
+        User user = userService.getCurrentUser();
 
         return likeRepository.findByUser(user).stream()
                 .map(like -> GatheringResponseDto.fromEntity(like.getGathering()))

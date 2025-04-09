@@ -29,7 +29,7 @@ public class CommentController {
     @PostMapping("/{gatheringId}/comments")
     public ResponseEntity<CommentResponseDto> addComment(@PathVariable Long gatheringId,
                                                          @RequestBody CommentRequestDto request) {
-        CommentResponseDto response = commentService.addComment(gatheringId, SecurityUtil.getCurrentKakaoId(), request);
+        CommentResponseDto response = commentService.addComment(gatheringId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     // 대댓글만 조회
@@ -54,7 +54,7 @@ public class CommentController {
     @PatchMapping("/comments/{commentId}")
     public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long commentId,
                                                             @RequestBody String content) {
-        CommentResponseDto response = commentService.updateComment(commentId, SecurityUtil.getCurrentKakaoId(), content);
+        CommentResponseDto response = commentService.updateComment(commentId, content);
         return ResponseEntity.ok(response);
     }
     // 댓글 삭제
@@ -73,7 +73,6 @@ public class CommentController {
     public ResponseEntity<Page<CommentResponseDto>> getMyComments(
             @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Long kakaoId = SecurityUtil.getCurrentKakaoId();
-        return ResponseEntity.ok(commentService.getMyComments(kakaoId, pageable));
+        return ResponseEntity.ok(commentService.getMyComments(pageable));
     }
 }

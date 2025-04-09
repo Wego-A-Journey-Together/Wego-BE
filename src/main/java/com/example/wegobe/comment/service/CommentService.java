@@ -1,7 +1,7 @@
 package com.example.wegobe.comment.service;
 
 import com.example.wegobe.auth.entity.User;
-import com.example.wegobe.auth.repository.UserRepository;
+import com.example.wegobe.auth.service.UserService;
 import com.example.wegobe.comment.domain.Comment;
 import com.example.wegobe.comment.dto.CommentRequestDto;
 import com.example.wegobe.comment.dto.CommentResponseDto;
@@ -20,9 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
     private final GatheringRepository gatheringRepository;
-
+    private final UserService userService;
     /**
      * 댓글 등록
      * 부모 댓글이 없을 경우는 새 댓글
@@ -30,9 +29,8 @@ public class CommentService {
      * 댓글 본문 반환
      */
     @Transactional
-    public CommentResponseDto addComment(Long gatheringId, Long kakaoId, CommentRequestDto request) {
-        User user = userRepository.findByKakaoId(kakaoId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    public CommentResponseDto addComment(Long gatheringId, CommentRequestDto request) {
+        User user = userService.getCurrentUser();
         Gathering gathering = gatheringRepository.findById(gatheringId)
                 .orElseThrow(() -> new RuntimeException("동행을 찾을 수 없습니다."));
 
@@ -85,12 +83,14 @@ public class CommentService {
      * 댓글 수정
      */
     @Transactional
-    public CommentResponseDto updateComment(Long commentId, Long kakaoId, String content) {
+    public CommentResponseDto updateComment(Long commentId,String content) {
+        User user = userService.getCurrentUser();
+
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
 
-        if (!comment.getWriter().getKakaoId().equals(kakaoId)) {
-            throw new RuntimeException("본인의 댓글만 삭제할 수 있습니다.");
+        if (!comment.getWriter().getId().equals(user.getId())) {
+            throw new RuntimeException("본인의 댓글만 수정할 수 있습니다.");
         }
         comment.updateContent(content);
         return CommentResponseDto.fromEntity(comment);
@@ -113,9 +113,8 @@ public class CommentService {
      * 특정 유저가 남긴 댓글 조회
      */
     @Transactional(readOnly = true)
-    public Page<CommentResponseDto> getMyComments(Long kakaoId, Pageable pageable) {
-        User user = userRepository.findByKakaoId(kakaoId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    public Page<CommentResponseDto> getMyComments(Pageable pageable) {
+        User user = userService.getCurrentUser();
 
         return commentRepository.findByWriter(user, pageable)
                 .map(CommentResponseDto::fromEntity);
