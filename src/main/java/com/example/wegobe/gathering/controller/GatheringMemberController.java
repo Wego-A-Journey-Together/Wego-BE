@@ -1,6 +1,5 @@
 package com.example.wegobe.gathering.controller;
 
-import com.example.wegobe.config.SecurityUtil;
 import com.example.wegobe.gathering.dto.response.GatheringMemberResponseDto;
 import com.example.wegobe.gathering.service.GatheringMemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,9 +26,8 @@ public class GatheringMemberController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/apply/{gatheringId}")
     public ResponseEntity<String> apply(@PathVariable("gatheringId") Long gatheringId) {
-        Long kakaoId = SecurityUtil.getCurrentKakaoId();
         try {
-            gatheringMemberService.applyGathering(gatheringId, kakaoId);
+            gatheringMemberService.applyGathering(gatheringId);
             return ResponseEntity.status(HttpStatus.CREATED).body("동행 신청이 완료되었습니다.");
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -41,10 +39,9 @@ public class GatheringMemberController {
      */
     @Operation(summary = "동행 신청 취소", description = "현재 로그인한 사용자가 신청한 동행을 취소합니다.")
     @SecurityRequirement(name = "Bearer Authentication")
-    @DeleteMapping("/cancel/{gatheringId}/")
+    @DeleteMapping("/cancel/{gatheringId}")
     public ResponseEntity<String> cancelApply(@PathVariable Long gatheringId) {
-        Long kakaoId = SecurityUtil.getCurrentKakaoId();
-        gatheringMemberService.cancelApplying(gatheringId, kakaoId);
+        gatheringMemberService.cancelApplying(gatheringId);
         return ResponseEntity.ok("동행 신청이 취소되었습니다.");
     }
     /**
@@ -54,8 +51,7 @@ public class GatheringMemberController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PatchMapping("/{gatheringId}/accept/{userId}")
     public ResponseEntity<String> acceptApplication(@PathVariable Long gatheringId, @PathVariable Long userId) {
-        Long kakaoId = SecurityUtil.getCurrentKakaoId();
-        gatheringMemberService.acceptApply(gatheringId, userId, kakaoId);
+        gatheringMemberService.acceptApply(gatheringId, userId);
         return ResponseEntity.ok("동행 신청을 수락하였습니다.");
     }
 
@@ -66,8 +62,7 @@ public class GatheringMemberController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PatchMapping("/{gatheringId}/block/{userId}")
     public ResponseEntity<String> cancelAcceptedApplication(@PathVariable Long gatheringId, @PathVariable Long userId) {
-        Long kakaoId = SecurityUtil.getCurrentKakaoId();
-        gatheringMemberService.cancelParticipator(gatheringId, userId, kakaoId);
+        gatheringMemberService.cancelParticipator(gatheringId, userId);
         return ResponseEntity.ok("동행 참여를 취소하였습니다.");
     }
 
@@ -79,8 +74,7 @@ public class GatheringMemberController {
     @GetMapping("/appliers/{gatheringId}")
     public ResponseEntity<List<GatheringMemberResponseDto>> getAppliers(@PathVariable Long gatheringId) {
 
-        Long kakaoId = SecurityUtil.getCurrentKakaoId();
-        return ResponseEntity.ok(gatheringMemberService.getAppliersList(gatheringId, kakaoId));
+        return ResponseEntity.ok(gatheringMemberService.getAppliersList(gatheringId));
     }
 
     /**

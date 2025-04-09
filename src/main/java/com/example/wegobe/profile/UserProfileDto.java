@@ -12,6 +12,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class UserProfileDto {
+    private Long kakaoId;
     private String nickname;
     private String thumbnailUrl;
     private String statusMessage;
@@ -20,8 +21,12 @@ public class UserProfileDto {
 
     public static UserProfileDto fromEntity(User user) {
         return UserProfileDto.builder()
+                .kakaoId(user.getKakaoId())
                 .nickname(user.getNickname())
-                .thumbnailUrl(user.getThumbnailUrl())
+                .thumbnailUrl(
+                        user.getThumbnailUrl() != null ? user.getThumbnailUrl() :
+                                "https://wegotiptaparticleimageuploadersuperultraggorgeousbucket.s3.ap-northeast-2.amazonaws.com/default/yaho"
+                )
                 .statusMessage(user.getStatusMessage())
                 .gender(user.getGender())
                 .ageGroup(user.getAgeGroup())

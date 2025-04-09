@@ -5,9 +5,11 @@ import com.example.wegobe.auth.repository.UserRepository;
 import com.example.wegobe.config.SecurityUtil;
 import com.example.wegobe.gathering.domain.Gathering;
 import com.example.wegobe.gathering.domain.HashTag;
+import com.example.wegobe.gathering.dto.request.GatheringFilterRequestDto;
 import com.example.wegobe.gathering.dto.request.GatheringRequestDto;
 import com.example.wegobe.gathering.dto.response.GatheringListResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringResponseDto;
+import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import com.example.wegobe.global.paging.PageableService;
 import jakarta.persistence.EntityNotFoundException;
@@ -148,6 +150,18 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     }
 
     /**
+     * 내가 등록한 동행 조회
+     */
+    public Page<GatheringSimpleResponseDto> getMyGatherings(Pageable pageable) {
+        Long kakaoId = SecurityUtil.getCurrentKakaoId();
+        User user = userRepository.findByKakaoId(kakaoId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        return gatheringRepository.findByCreator(user, pageable)
+                .map(GatheringSimpleResponseDto::fromEntity);
+    }
+
+    /**
      * 썸네일이 없을 경우 기본 이미지 URL 지정
      * 랜덤한 기본 이미지 URL 반환
      */
@@ -200,6 +214,13 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     @Transactional(readOnly = true)
     public Page<GatheringListResponseDto> searchByKeyword(String keyword, Pageable pageable) {
         return gatheringRepository.searchByTitleOrHashtag(keyword, pageable)
+                .map(GatheringListResponseDto::fromEntity);
+    }
+
+    // 동행 필터링하기
+    @Transactional(readOnly = true)
+    public Page<GatheringListResponseDto> filterGatherings(GatheringFilterRequestDto filter, Pageable pageable) {
+        return gatheringRepository.findByFilters(filter, pageable)
                 .map(GatheringListResponseDto::fromEntity);
     }
 }
