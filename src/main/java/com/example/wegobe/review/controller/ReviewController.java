@@ -1,7 +1,6 @@
 package com.example.wegobe.review.controller;
 
 import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
-import com.example.wegobe.review.dto.MyReviewResponseDto;
 import com.example.wegobe.review.dto.ReviewRequestDto;
 import com.example.wegobe.review.dto.ReviewResponseDto;
 import com.example.wegobe.review.service.ReviewService;
@@ -41,22 +40,6 @@ public class ReviewController {
     @GetMapping("/gathering/{gatheringId}")
     public Page<ReviewResponseDto> getReviewsByGathering(@PathVariable Long gatheringId, @PageableDefault(size = 20) Pageable pageable) {
         return reviewService.getReviewsByGathering(gatheringId, pageable);
-    }
-
-    // 내가 쓴 리뷰 조회
-    @Operation(summary = "내가 쓴 소감들 조회", description = "내가 참여한 동행에 대해 작성한 소감을 조회할 수 있습니다.(최신순)")
-    @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/me")
-    public Page<MyReviewResponseDto> getMyReviews(@PageableDefault(size = 20) Pageable pageable) {
-        return reviewService.getMyReviews(pageable);
-    }
-
-    // 내가 주최한 동행에 대한 리뷰
-    @Operation(summary = "내가 받은 소감 조회", description = "내가 주최한 동행에 달린 소감을 조회할 수 있습니다.(최신순)")
-    @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/received")
-    public Page<ReviewResponseDto> getReviewsForMyGatherings(@PageableDefault(size = 20) Pageable pageable) {
-        return reviewService.getReviewsForMyGatherings(pageable);
     }
 
     // 내가 참여했지만, 아직 소감 등록 안한 동행 정보 조회

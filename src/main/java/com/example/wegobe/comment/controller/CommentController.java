@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,15 +63,5 @@ public class CommentController {
     public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
         commentService.deleteComment(commentId, SecurityUtil.getCurrentKakaoId());
         return ResponseEntity.noContent().build();
-    }
-
-    // 특정 유저가 남긴 댓글 조회
-    @Operation(summary = "특정 유저의 댓글 조회", description = "유저가 남긴 댓글을 조회합니다(마이페이지)")
-    @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/users/me/comments")
-    public ResponseEntity<Page<CommentResponseDto>> getMyComments(
-            @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
-
-        return ResponseEntity.ok(commentService.getMyComments(pageable));
     }
 }

@@ -1,7 +1,9 @@
-package com.example.wegobe.profile;
+package com.example.wegobe.profile.controller;
 
 import com.example.wegobe.auth.entity.User;
 import com.example.wegobe.auth.service.UserService;
+import com.example.wegobe.profile.ProfileDto;
+import com.example.wegobe.profile.UserProfileDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
