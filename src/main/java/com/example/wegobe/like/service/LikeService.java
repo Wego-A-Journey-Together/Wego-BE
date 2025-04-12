@@ -3,8 +3,9 @@ package com.example.wegobe.like.service;
 import com.example.wegobe.auth.entity.User;
 import com.example.wegobe.auth.service.UserService;
 import com.example.wegobe.gathering.domain.Gathering;
-import com.example.wegobe.gathering.dto.response.GatheringResponseDto;
+import com.example.wegobe.gathering.dto.response.GatheringListResponseDto;
 import com.example.wegobe.gathering.repository.GatheringRepository;
+import com.example.wegobe.gathering.service.GatheringService;
 import com.example.wegobe.like.domain.Like;
 import com.example.wegobe.like.dto.LikeResponseDto;
 import com.example.wegobe.like.repository.LikeRepository;
@@ -23,6 +24,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final GatheringRepository gatheringRepository;
     private final UserService userService;
+    private final GatheringService gatheringService;
 
     /**
      * 찜 등록 삭제
@@ -66,11 +68,16 @@ public class LikeService {
      * 특정 유저가 찜한 동행 목록 조회
      */
     @Transactional(readOnly = true)
-    public List<GatheringResponseDto> getLikedGatherings() {
+    public List<GatheringListResponseDto> getLikedGatherings() {
         User user = userService.getCurrentUser();
 
-        return likeRepository.findByUser(user).stream()
-                .map(like -> GatheringResponseDto.fromEntity(like.getGathering()))
+        return likeRepository.findByUser(user)
+                .stream()
+                .map(like -> {
+                    Gathering gathering = like.getGathering();
+                    int currentParticipants = gatheringService.getCurrentParticipants(gathering);
+                    return GatheringListResponseDto.fromEntity(gathering, currentParticipants);
+                })
                 .collect(Collectors.toList());
     }
 }

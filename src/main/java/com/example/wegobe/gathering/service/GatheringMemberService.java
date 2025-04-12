@@ -10,6 +10,7 @@ import com.example.wegobe.gathering.dto.response.GatheringMemberResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
+import com.example.wegobe.profile.WriterProfileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ public class GatheringMemberService {
     private final UserRepository userRepository;
     private final GatheringRepository gatheringRepository;
     private final UserService userService;
+    private final GatheringService gatheringService;
 
     // 동행 참여 신청
     public void applyGathering(Long gatheringId) {
@@ -134,7 +136,12 @@ public class GatheringMemberService {
 
         return gatheringMemberRepository.findByUserAndStatus(user, GatheringStatus.ACCEPTED)
                 .stream()
-                .map(member -> GatheringSimpleResponseDto.fromEntity(member.getGathering()))
+                .map(member -> {
+                    Gathering gathering = member.getGathering();
+                    int currentParticipants = gatheringService.getCurrentParticipants(gathering);
+                    WriterProfileDto host = WriterProfileDto.fromEntity(gathering.getCreator());
+                    return GatheringSimpleResponseDto.fromEntity(gathering, currentParticipants, host);
+                })
                 .collect(Collectors.toList());
     }
 

@@ -21,14 +21,14 @@ public class MyReviewResponseDto {
 
     private WriterProfileDto hostProfile;
 
-    public static MyReviewResponseDto fromEntity(Review review) {
+    public static MyReviewResponseDto fromEntity(Review review, int currentParticipants) {
         Gathering gathering = review.getGathering();
 
         return MyReviewResponseDto.builder()
                 .createdAt(review.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .rating(review.getRating())
                 .content(review.getContent())
-                .gathering(GatheringSimpleResponseDto.fromEntity(review.getGathering()))
+                .gathering(GatheringSimpleResponseDto.fromEntity(gathering, currentParticipants))
                 .hostProfile(WriterProfileDto.fromEntity(gathering.getCreator()))
                 .build();
     }

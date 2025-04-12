@@ -2,7 +2,7 @@ package com.example.wegobe.profile.controller;
 
 import com.example.wegobe.comment.dto.CommentResponseDto;
 import com.example.wegobe.comment.service.CommentService;
-import com.example.wegobe.gathering.dto.response.GatheringResponseDto;
+import com.example.wegobe.gathering.dto.response.GatheringListResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.service.GatheringMemberService;
 import com.example.wegobe.gathering.service.GatheringService;
@@ -68,8 +68,8 @@ public class MypageController {
      */
     @Operation(summary = "내 찜 목록 조회", description = "현재 사용자의 찜한 동행 목록을 조회합니다.")
     @GetMapping("/likes")
-    public ResponseEntity<List<GatheringResponseDto>> getLikedGatherings() {
-        List<GatheringResponseDto> likedGatherings = likeService.getLikedGatherings();
+    public ResponseEntity<List<GatheringListResponseDto>> getLikedGatherings() {
+        List<GatheringListResponseDto> likedGatherings = likeService.getLikedGatherings();
         return ResponseEntity.ok(likedGatherings);
     }
 
