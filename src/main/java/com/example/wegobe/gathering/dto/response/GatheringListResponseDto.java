@@ -26,6 +26,7 @@ public class GatheringListResponseDto {
     private LocalDate endAt;
     private LocalDateTime closedAt;
     private int maxParticipants;
+    private int currentParticipants;
     private String location;
 
     private Gender preferredGender;
@@ -36,7 +37,7 @@ public class GatheringListResponseDto {
 
     private UserProfileDto creator;
 
-    public static GatheringListResponseDto fromEntity(Gathering gathering) {
+    public static GatheringListResponseDto fromEntity(Gathering gathering, int currentParticipants) {
         return GatheringListResponseDto.builder()
                 .id(gathering.getId())
                 .title(gathering.getTitle())
@@ -45,6 +46,7 @@ public class GatheringListResponseDto {
                 .endAt(gathering.getEndAt())
                 .closedAt(gathering.getClosedAt())
                 .maxParticipants(gathering.getMaxParticipants())
+                .currentParticipants(currentParticipants)
                 .location(gathering.getLocation())
                 .preferredGender(gathering.getPreferredGender())
                 .preferredAge(gathering.getPreferredAge())

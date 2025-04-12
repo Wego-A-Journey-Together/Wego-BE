@@ -8,6 +8,7 @@ import com.example.wegobe.gathering.domain.enums.GatheringStatus;
 import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
+import com.example.wegobe.gathering.service.GatheringService;
 import com.example.wegobe.review.domain.Review;
 import com.example.wegobe.review.dto.MyReviewResponseDto;
 import com.example.wegobe.review.dto.ReviewRequestDto;
@@ -29,6 +30,7 @@ public class ReviewService {
     private final GatheringRepository gatheringRepository;
     private final GatheringMemberRepository gatheringMemberRepository;
     private final UserService userService;
+    private final GatheringService gatheringService;
 
     /**
      * 리뷰 등록
@@ -74,8 +76,13 @@ public class ReviewService {
      */
     public Page<MyReviewResponseDto> getMyReviews(Pageable pageable) {
         User user = userService.getCurrentUser();
+
         return reviewRepository.findAllByWriterOrderByCreatedDateDesc(user, pageable)
-                .map(MyReviewResponseDto::fromEntity);
+                .map(review -> {
+                    Gathering gathering = review.getGathering();
+                    int currentParticipants = gatheringService.getCurrentParticipants(gathering);
+                    return MyReviewResponseDto.fromEntity(review, currentParticipants);
+                });
     }
 
     /**
@@ -99,7 +106,10 @@ public class ReviewService {
         return participated.stream()
                 .map(GatheringMember::getGathering)
                 .filter(gathering -> reviewRepository.findByWriterAndGathering(user, gathering).isEmpty())
-                .map(GatheringSimpleResponseDto::fromEntity)
+                .map(gathering -> {
+                    int currentParticipants = gatheringService.getCurrentParticipants(gathering);
+                    return GatheringSimpleResponseDto.fromEntity(gathering, currentParticipants);
+                })
                 .collect(Collectors.toList());
     }
 }

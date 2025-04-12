@@ -20,10 +20,12 @@ public class GatheringSimpleResponseDto {
     private LocalDate startAt;
     private LocalDate endAt;
     private Integer maxParticipants;
+    private int currentParticipants;
     private Gender preferredGender;
     private AgeGroup preferredAge;
 
-    public static GatheringSimpleResponseDto fromEntity(Gathering gathering) {
+
+    public static GatheringSimpleResponseDto fromEntity(Gathering gathering, int currentParticipants ) {
         return GatheringSimpleResponseDto.builder()
                 .gatheringId(gathering.getId())
                 .title(gathering.getTitle())
@@ -31,6 +33,7 @@ public class GatheringSimpleResponseDto {
                 .startAt(gathering.getStartAt())
                 .endAt(gathering.getEndAt())
                 .maxParticipants(gathering.getMaxParticipants())
+                .currentParticipants(currentParticipants)
                 .preferredGender(gathering.getPreferredGender())
                 .preferredAge(gathering.getPreferredAge())
                 .build();

@@ -27,6 +27,7 @@ public class GatheringMemberService {
     private final UserRepository userRepository;
     private final GatheringRepository gatheringRepository;
     private final UserService userService;
+    private final GatheringService gatheringService;
 
     // 동행 참여 신청
     public void applyGathering(Long gatheringId) {
@@ -134,7 +135,11 @@ public class GatheringMemberService {
 
         return gatheringMemberRepository.findByUserAndStatus(user, GatheringStatus.ACCEPTED)
                 .stream()
-                .map(member -> GatheringSimpleResponseDto.fromEntity(member.getGathering()))
+                .map(member -> {
+                    Gathering gathering = member.getGathering();
+                    int currentParticipants = gatheringService.getCurrentParticipants(gathering);
+                    return GatheringSimpleResponseDto.fromEntity(gathering, currentParticipants);
+                })
                 .collect(Collectors.toList());
     }
 
