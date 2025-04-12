@@ -19,6 +19,7 @@ public class GatheringSimpleResponseDto {
     private String thumbnailUrl;
     private LocalDate startAt;
     private LocalDate endAt;
+    private Integer maxParticipants;
     private Gender preferredGender;
     private AgeGroup preferredAge;
 
@@ -29,6 +30,7 @@ public class GatheringSimpleResponseDto {
                 .thumbnailUrl(gathering.getThumbnailUrl())
                 .startAt(gathering.getStartAt())
                 .endAt(gathering.getEndAt())
+                .maxParticipants(gathering.getMaxParticipants())
                 .preferredGender(gathering.getPreferredGender())
                 .preferredAge(gathering.getPreferredAge())
                 .build();
