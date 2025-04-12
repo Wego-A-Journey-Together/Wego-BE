@@ -5,11 +5,13 @@ import com.example.wegobe.auth.repository.UserRepository;
 import com.example.wegobe.config.SecurityUtil;
 import com.example.wegobe.gathering.domain.Gathering;
 import com.example.wegobe.gathering.domain.HashTag;
+import com.example.wegobe.gathering.domain.enums.GatheringStatus;
 import com.example.wegobe.gathering.dto.request.GatheringFilterRequestDto;
 import com.example.wegobe.gathering.dto.request.GatheringRequestDto;
 import com.example.wegobe.gathering.dto.response.GatheringListResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
+import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import com.example.wegobe.global.paging.PageableService;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,6 +34,7 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
 
     private final GatheringRepository gatheringRepository;
     private final UserRepository userRepository;
+    private final GatheringMemberRepository gatheringMemberRepository;
 
     @Value("${thumbnail.url}")
     private String[] DEFAULT_THUMBNAIL_URLS;
@@ -81,9 +84,9 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     @Transactional
     public GatheringResponseDto getGatheringById(Long id) {
         Gathering gathering = gatheringRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Gathering not found"));
-
-        return GatheringResponseDto.fromEntity(gathering);
+                .orElseThrow(() -> new EntityNotFoundException("해당 동행을 찾을 수 없습니다."));
+        int acceptedCount = getCurrentParticipants(gathering);
+        return GatheringResponseDto.fromEntity(gathering, acceptedCount);
     }
 
     /**
@@ -93,7 +96,7 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     @Transactional(readOnly = true)
     public Page<GatheringListResponseDto> findAll(Pageable pageable) {
         return gatheringRepository.findAll(pageable)
-                .map(GatheringListResponseDto::fromEntity);
+                .map(gathering -> GatheringListResponseDto.fromEntity(gathering, getCurrentParticipants(gathering)));
     }
 
     /**
@@ -136,8 +139,8 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
         );
 
         updateHashtags(gathering, updateDto.getHashtags()); // 해시태그 별도 update
-
-        return GatheringResponseDto.fromEntity(gathering);
+        int acceptedCount = getCurrentParticipants(gathering);
+        return GatheringResponseDto.fromEntity(gathering, acceptedCount);
     }
 
     /**
@@ -158,8 +161,16 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         return gatheringRepository.findByCreator(user, pageable)
-                .map(GatheringSimpleResponseDto::fromEntity);
+                .map(gathering -> GatheringSimpleResponseDto.fromEntity(gathering, getCurrentParticipants(gathering)));
     }
+
+    /**
+     * 현재 참여자 수 조회
+     */
+    public int getCurrentParticipants(Gathering gathering) {
+        return gatheringMemberRepository.countByGatheringAndStatus(gathering, GatheringStatus.ACCEPTED);
+    }
+
 
     /**
      * 썸네일이 없을 경우 기본 이미지 URL 지정
@@ -214,13 +225,13 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     @Transactional(readOnly = true)
     public Page<GatheringListResponseDto> searchByKeyword(String keyword, Pageable pageable) {
         return gatheringRepository.searchByTitleOrHashtag(keyword, pageable)
-                .map(GatheringListResponseDto::fromEntity);
+                .map(gathering -> GatheringListResponseDto.fromEntity(gathering, getCurrentParticipants(gathering)));
     }
 
     // 동행 필터링하기
     @Transactional(readOnly = true)
     public Page<GatheringListResponseDto> filterGatherings(GatheringFilterRequestDto filter, Pageable pageable) {
         return gatheringRepository.findByFilters(filter, pageable)
-                .map(GatheringListResponseDto::fromEntity);
+                .map(gathering -> GatheringListResponseDto.fromEntity(gathering, getCurrentParticipants(gathering)));
     }
 }

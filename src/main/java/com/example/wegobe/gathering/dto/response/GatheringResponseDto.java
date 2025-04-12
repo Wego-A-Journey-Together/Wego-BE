@@ -26,6 +26,8 @@ public class GatheringResponseDto {
     private LocalDate endAt;
     private LocalDateTime closedAt;
     private int maxParticipants;
+    private int currentParticipants;
+
     private String location;
     private Double latitude;
     private Double longitude;
@@ -38,7 +40,7 @@ public class GatheringResponseDto {
 
     private UserProfileDto creator;
 
-    public static GatheringResponseDto fromEntity(Gathering gathering) {
+    public static GatheringResponseDto fromEntity(Gathering gathering, int currentParticipants) {
         return GatheringResponseDto.builder()
                 .id(gathering.getId())
                 .title(gathering.getTitle())
@@ -47,6 +49,7 @@ public class GatheringResponseDto {
                 .endAt(gathering.getEndAt())
                 .closedAt(gathering.getClosedAt())
                 .maxParticipants(gathering.getMaxParticipants())
+                .currentParticipants(currentParticipants)
                 .location(gathering.getLocation())
                 .latitude(gathering.getLatitude())
                 .longitude(gathering.getLongitude())
