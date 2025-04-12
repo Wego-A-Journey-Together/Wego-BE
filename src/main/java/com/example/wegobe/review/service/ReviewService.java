@@ -9,6 +9,7 @@ import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import com.example.wegobe.gathering.service.GatheringService;
+import com.example.wegobe.profile.WriterProfileDto;
 import com.example.wegobe.review.domain.Review;
 import com.example.wegobe.review.dto.MyReviewResponseDto;
 import com.example.wegobe.review.dto.ReviewRequestDto;
@@ -108,7 +109,8 @@ public class ReviewService {
                 .filter(gathering -> reviewRepository.findByWriterAndGathering(user, gathering).isEmpty())
                 .map(gathering -> {
                     int currentParticipants = gatheringService.getCurrentParticipants(gathering);
-                    return GatheringSimpleResponseDto.fromEntity(gathering, currentParticipants);
+                    WriterProfileDto host = WriterProfileDto.fromEntity(gathering.getCreator());
+                    return GatheringSimpleResponseDto.fromEntity(gathering, currentParticipants, host);
                 })
                 .collect(Collectors.toList());
     }

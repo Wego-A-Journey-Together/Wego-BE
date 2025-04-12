@@ -10,6 +10,7 @@ import com.example.wegobe.gathering.dto.response.GatheringMemberResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
+import com.example.wegobe.profile.WriterProfileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -138,7 +139,8 @@ public class GatheringMemberService {
                 .map(member -> {
                     Gathering gathering = member.getGathering();
                     int currentParticipants = gatheringService.getCurrentParticipants(gathering);
-                    return GatheringSimpleResponseDto.fromEntity(gathering, currentParticipants);
+                    WriterProfileDto host = WriterProfileDto.fromEntity(gathering.getCreator());
+                    return GatheringSimpleResponseDto.fromEntity(gathering, currentParticipants, host);
                 })
                 .collect(Collectors.toList());
     }
