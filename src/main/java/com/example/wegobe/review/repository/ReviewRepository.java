@@ -21,6 +21,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Page<Review> findAllByGathering_CreatorOrderByCreatedDateDesc(User creator, Pageable pageable);
 
+    int countByGathering(Gathering gathering);
+
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.gathering.creator.kakaoId = :kakaoId")
     Double findAverageRatingByKakaoId(@Param("kakaoId") Long kakaoId);
 
