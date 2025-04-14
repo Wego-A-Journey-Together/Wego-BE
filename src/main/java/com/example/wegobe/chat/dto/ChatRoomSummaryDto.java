@@ -13,4 +13,5 @@ public class ChatRoomSummaryDto {
     private String opponentNickname;
     private String lastMessage;
     private int unreadCount;
+    private String sentAt;
 }
