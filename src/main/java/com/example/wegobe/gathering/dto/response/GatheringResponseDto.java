@@ -44,7 +44,7 @@ public class GatheringResponseDto {
 
     private int reviewCount;
 
-    public static GatheringResponseDto fromEntity(Gathering gathering, int currentParticipants, int likeCount, int reviewCount) {
+    public static GatheringResponseDto fromEntity(Gathering gathering, int currentParticipants, int likeCount, int reviewCount, UserProfileDto creator) {
         return GatheringResponseDto.builder()
                 .id(gathering.getId())
                 .title(gathering.getTitle())
@@ -64,7 +64,7 @@ public class GatheringResponseDto {
                 .hashtags(gathering.getHashtags().stream()
                         .map(HashTag::getTag)
                         .collect(Collectors.toList()))
-                .creator(UserProfileDto.fromEntity(gathering.getCreator()))
+                .creator(creator)
                 .likeCount(likeCount)
                 .reviewCount(reviewCount)
                 .build();
