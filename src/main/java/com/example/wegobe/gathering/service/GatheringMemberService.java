@@ -12,7 +12,6 @@ import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import com.example.wegobe.profile.UserProfileDto;
 import com.example.wegobe.profile.WriterProfileDto;
-import com.example.wegobe.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +30,7 @@ public class GatheringMemberService {
     private final GatheringRepository gatheringRepository;
     private final UserService userService;
     private final GatheringService gatheringService;
-    private final ReviewService reviewService;
+    private final GatheringStatsService gatheringStatsService;
 
     // 동행 참여 신청
     public void applyGathering(Long gatheringId) {
@@ -131,8 +130,8 @@ public class GatheringMemberService {
                 .stream()
                 .map(member -> {
                     User user = member.getUser();
-                    Double averageRating = reviewService.getAverageRatingByKakaoId(user.getKakaoId());
-                    Long totalReviews = reviewService.getReviewCountByKakaoId(user.getKakaoId());
+                    Double averageRating = gatheringStatsService.getAverageRatingByKakaoId(user.getKakaoId());
+                    Long totalReviews = gatheringStatsService.getReviewCountByKakaoId(user.getKakaoId());
 
                     return GatheringMemberResponseDto.builder()
                             .userId(user.getId())
@@ -152,7 +151,7 @@ public class GatheringMemberService {
                 .stream()
                 .map(member -> {
                     Gathering gathering = member.getGathering();
-                    int currentParticipants = gatheringService.getCurrentParticipants(gathering);
+                    int currentParticipants = gatheringStatsService.getCurrentParticipants(gathering);
                     WriterProfileDto host = WriterProfileDto.fromEntity(gathering.getCreator());
                     return GatheringSimpleResponseDto.fromEntity(gathering, currentParticipants, host);
                 })

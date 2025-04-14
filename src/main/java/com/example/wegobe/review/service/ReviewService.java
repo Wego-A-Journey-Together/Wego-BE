@@ -8,7 +8,7 @@ import com.example.wegobe.gathering.domain.enums.GatheringStatus;
 import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
-import com.example.wegobe.gathering.service.GatheringService;
+import com.example.wegobe.gathering.service.GatheringStatsService;
 import com.example.wegobe.profile.WriterProfileDto;
 import com.example.wegobe.review.domain.Review;
 import com.example.wegobe.review.dto.MyReviewResponseDto;
@@ -31,7 +31,7 @@ public class ReviewService {
     private final GatheringRepository gatheringRepository;
     private final GatheringMemberRepository gatheringMemberRepository;
     private final UserService userService;
-    private final GatheringService gatheringService;
+    private final GatheringStatsService gatheringStatsService;
 
     /**
      * 리뷰 등록
@@ -81,7 +81,7 @@ public class ReviewService {
         return reviewRepository.findAllByWriterOrderByCreatedDateDesc(user, pageable)
                 .map(review -> {
                     Gathering gathering = review.getGathering();
-                    int currentParticipants = gatheringService.getCurrentParticipants(gathering);
+                    int currentParticipants = gatheringStatsService.getCurrentParticipants(gathering);
                     return MyReviewResponseDto.fromEntity(review, currentParticipants);
                 });
     }
@@ -115,18 +115,11 @@ public class ReviewService {
                 .map(GatheringMember::getGathering)
                 .filter(gathering -> reviewRepository.findByWriterAndGathering(user, gathering).isEmpty())
                 .map(gathering -> {
-                    int currentParticipants = gatheringService.getCurrentParticipants(gathering);
+                    int currentParticipants = gatheringStatsService.getCurrentParticipants(gathering);
                     WriterProfileDto host = WriterProfileDto.fromEntity(gathering.getCreator());
                     return GatheringSimpleResponseDto.fromEntity(gathering, currentParticipants, host);
                 })
                 .collect(Collectors.toList());
     }
 
-    public Double getAverageRatingByKakaoId(Long kakaoId) {
-        return reviewRepository.findAverageRatingByKakaoId(kakaoId);
-    }
-
-    public Long getReviewCountByKakaoId(Long kakaoId) {
-        return reviewRepository.countByKakaoId(kakaoId);
-    }
 }
