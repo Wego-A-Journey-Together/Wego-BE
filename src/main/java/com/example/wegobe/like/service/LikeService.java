@@ -5,10 +5,10 @@ import com.example.wegobe.auth.service.UserService;
 import com.example.wegobe.gathering.domain.Gathering;
 import com.example.wegobe.gathering.dto.response.GatheringListResponseDto;
 import com.example.wegobe.gathering.repository.GatheringRepository;
-import com.example.wegobe.gathering.service.GatheringService;
 import com.example.wegobe.like.domain.Like;
 import com.example.wegobe.like.dto.LikeResponseDto;
 import com.example.wegobe.like.repository.LikeRepository;
+import com.example.wegobe.gathering.service.GatheringStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final GatheringRepository gatheringRepository;
     private final UserService userService;
-    private final GatheringService gatheringService;
+    private final GatheringStatsService gatheringStatsService;
 
     /**
      * 찜 등록 삭제
@@ -75,7 +75,7 @@ public class LikeService {
                 .stream()
                 .map(like -> {
                     Gathering gathering = like.getGathering();
-                    int currentParticipants = gatheringService.getCurrentParticipants(gathering);
+                    int currentParticipants = gatheringStatsService.getCurrentParticipants(gathering);
                     return GatheringListResponseDto.fromEntity(gathering, currentParticipants);
                 })
                 .collect(Collectors.toList());

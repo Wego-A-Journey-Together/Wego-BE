@@ -5,17 +5,14 @@ import com.example.wegobe.auth.repository.UserRepository;
 import com.example.wegobe.config.SecurityUtil;
 import com.example.wegobe.gathering.domain.Gathering;
 import com.example.wegobe.gathering.domain.HashTag;
-import com.example.wegobe.gathering.domain.enums.GatheringStatus;
 import com.example.wegobe.gathering.dto.request.GatheringFilterRequestDto;
 import com.example.wegobe.gathering.dto.request.GatheringRequestDto;
 import com.example.wegobe.gathering.dto.response.GatheringListResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
-import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import com.example.wegobe.global.paging.PageableService;
-import com.example.wegobe.like.repository.LikeRepository;
-import com.example.wegobe.review.repository.ReviewRepository;
+import com.example.wegobe.profile.UserProfileDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,9 +33,7 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
 
     private final GatheringRepository gatheringRepository;
     private final UserRepository userRepository;
-    private final GatheringMemberRepository gatheringMemberRepository;
-    private final LikeRepository likeRepository;
-    private final ReviewRepository reviewRepository;
+    private final GatheringStatsService gatheringStatsService;
 
     @Value("${thumbnail.url}")
     private String[] DEFAULT_THUMBNAIL_URLS;
@@ -90,11 +85,17 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
         Gathering gathering = gatheringRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 동행을 찾을 수 없습니다."));
 
-        int acceptedCount = getCurrentParticipants(gathering);              // 참여자 수
-        int likeCount = likeRepository.countByGathering(gathering);         // 좋아요 수
-        int reviewCount = reviewRepository.countByGathering(gathering);     // 소감 개수
+        int acceptedCount = gatheringStatsService.getCurrentParticipants(gathering);              // 참여자 수
+        int likeCount = gatheringStatsService.getLikeCount(gathering);         // 좋아요 수
+        int reviewCount = gatheringStatsService.getReviewCount(gathering);     // 소감 개수
 
-        return GatheringResponseDto.fromEntity(gathering, acceptedCount, likeCount, reviewCount);
+        User creator = gathering.getCreator();
+        Double averageRating = gatheringStatsService.getAverageRatingByKakaoId(creator.getKakaoId());
+        Long totalReviews = gatheringStatsService.getReviewCountByKakaoId(creator.getKakaoId());
+
+        UserProfileDto creatorProfile = UserProfileDto.fromEntity(creator, averageRating, totalReviews);
+
+        return GatheringResponseDto.fromEntity(gathering, acceptedCount, likeCount, reviewCount, creatorProfile);
     }
 
     /**
@@ -104,7 +105,7 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     @Transactional(readOnly = true)
     public Page<GatheringListResponseDto> findAll(Pageable pageable) {
         return gatheringRepository.findAll(pageable)
-                .map(gathering -> GatheringListResponseDto.fromEntity(gathering, getCurrentParticipants(gathering)));
+                .map(gathering -> GatheringListResponseDto.fromEntity(gathering, gatheringStatsService.getCurrentParticipants(gathering)));
     }
 
     /**
@@ -148,11 +149,17 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
 
         updateHashtags(gathering, updateDto.getHashtags()); // 해시태그 별도 update
 
-        int acceptedCount = getCurrentParticipants(gathering);
-        int likeCount = likeRepository.countByGathering(gathering);
-        int reviewCount = reviewRepository.countByGathering(gathering);
+        int acceptedCount = gatheringStatsService.getCurrentParticipants(gathering);
+        int likeCount = gatheringStatsService.getLikeCount(gathering);
+        int reviewCount = gatheringStatsService.getReviewCount(gathering);
 
-        return GatheringResponseDto.fromEntity(gathering, acceptedCount,likeCount, reviewCount);
+        // ✅ 주최자 평점 통계 포함된 UserProfileDto 생성
+        User creator = gathering.getCreator();
+        Double averageRating = gatheringStatsService.getAverageRatingByKakaoId(creator.getKakaoId());
+        Long totalReviews = gatheringStatsService.getReviewCountByKakaoId(creator.getKakaoId());
+        UserProfileDto creatorProfile = UserProfileDto.fromEntity(creator, averageRating, totalReviews);
+
+        return GatheringResponseDto.fromEntity(gathering, acceptedCount,likeCount, reviewCount, creatorProfile);
     }
 
     /**
@@ -173,16 +180,8 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         return gatheringRepository.findByCreator(user, pageable)
-                .map(gathering -> GatheringSimpleResponseDto.fromEntity(gathering, getCurrentParticipants(gathering)));
+                .map(gathering -> GatheringSimpleResponseDto.fromEntity(gathering, gatheringStatsService.getCurrentParticipants(gathering)));
     }
-
-    /**
-     * 현재 참여자 수 조회
-     */
-    public int getCurrentParticipants(Gathering gathering) {
-        return gatheringMemberRepository.countByGatheringAndStatus(gathering, GatheringStatus.ACCEPTED);
-    }
-
 
     /**
      * 썸네일이 없을 경우 기본 이미지 URL 지정
@@ -237,13 +236,13 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     @Transactional(readOnly = true)
     public Page<GatheringListResponseDto> searchByKeyword(String keyword, Pageable pageable) {
         return gatheringRepository.searchByTitleOrHashtag(keyword, pageable)
-                .map(gathering -> GatheringListResponseDto.fromEntity(gathering, getCurrentParticipants(gathering)));
+                .map(gathering -> GatheringListResponseDto.fromEntity(gathering, gatheringStatsService.getCurrentParticipants(gathering)));
     }
 
     // 동행 필터링하기
     @Transactional(readOnly = true)
     public Page<GatheringListResponseDto> filterGatherings(GatheringFilterRequestDto filter, Pageable pageable) {
         return gatheringRepository.findByFilters(filter, pageable)
-                .map(gathering -> GatheringListResponseDto.fromEntity(gathering, getCurrentParticipants(gathering)));
+                .map(gathering -> GatheringListResponseDto.fromEntity(gathering, gatheringStatsService.getCurrentParticipants(gathering)));
     }
 }
