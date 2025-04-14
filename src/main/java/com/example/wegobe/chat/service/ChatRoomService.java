@@ -32,20 +32,27 @@ public class ChatRoomService {
     }
 
    // 채팅방 목록 조회
-    public List<ChatRoomSummaryDto> getRoomSummaries(Long myKakaoId) {
-        return chatRoomRepository.findAllByUser(myKakaoId).stream().map(room -> {
-            User opponent = room.getUser1().getKakaoId().equals(myKakaoId) ? room.getUser2() : room.getUser1();
-            int unread = messageRepo.countUnread(room.getId(), myKakaoId);
-            String lastMessage = messageRepo.findByChatRoomIdOrderBySentAtDesc(room.getId()).stream()
-                    .reduce((first, second) -> second).map(ChatMessage::getMessage).orElse("");
-            return ChatRoomSummaryDto.builder()
-                    .roomId(room.getId())
-                    .opponentNickname(opponent.getNickname())
-                    .lastMessage(lastMessage)
-                    .unreadCount(unread)
-                    .build();
-        }).toList();
-    }
+   public List<ChatRoomSummaryDto> getRoomSummaries(Long myKakaoId) {
+       return chatRoomRepository.findAllByUser(myKakaoId).stream().map(room -> {
+           // 상대 유저 찾기
+           User opponent = room.getUser1().getKakaoId().equals(myKakaoId) ? room.getUser2() : room.getUser1();
+
+           // 안 읽은 메시지 수
+           int unread = messageRepo.countUnread(room.getId(), myKakaoId);
+
+           // 최신 메시지 한 개만 가져오기 (최적화)
+           ChatMessage last = messageRepo.findTop1ByChatRoomIdOrderBySentAtDesc(room.getId()).orElse(null);
+
+           return ChatRoomSummaryDto.builder()
+                   .roomId(room.getId())
+                   .opponentNickname(opponent.getNickname())
+                   .lastMessage(last != null ? last.getMessage() : "")
+                   .sentAt(last != null ? last.getSentAt().toString() : null)
+                   .unreadCount(unread)
+                   .build();
+       }).toList();
+   }
+
 
     public ChatRoom findById(Long roomId) {
         return chatRoomRepository.findById(roomId)

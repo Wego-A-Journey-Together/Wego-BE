@@ -87,12 +87,19 @@ public class ReviewService {
     }
 
     /**
+     * 특정 유저에게 남겨진 소감 목록 조회
+     */
+    public Page<ReviewResponseDto> getReviewsForUserGatherings(Long kakaoId, Pageable pageable) {
+        User user = userService.getUserByKakaoId(kakaoId);
+        return reviewRepository.findAllByGathering_CreatorOrderByCreatedDateDesc(user, pageable)
+                .map(ReviewResponseDto::fromEntity);
+    }
+    /**
      * 내가 주최한 동행에 대한 리뷰 목록
      */
     public Page<ReviewResponseDto> getReviewsForMyGatherings(Pageable pageable) {
-        User user = userService.getCurrentUser();
-        return reviewRepository.findAllByGathering_CreatorOrderByCreatedDateDesc(user, pageable)
-                .map(ReviewResponseDto::fromEntity);
+        Long myKakaoId = userService.getCurrentUser().getKakaoId();
+        return getReviewsForUserGatherings(myKakaoId, pageable);
     }
 
     /**
@@ -113,5 +120,13 @@ public class ReviewService {
                     return GatheringSimpleResponseDto.fromEntity(gathering, currentParticipants, host);
                 })
                 .collect(Collectors.toList());
+    }
+
+    public Double getAverageRatingByKakaoId(Long kakaoId) {
+        return reviewRepository.findAverageRatingByKakaoId(kakaoId);
+    }
+
+    public Long getReviewCountByKakaoId(Long kakaoId) {
+        return reviewRepository.countByKakaoId(kakaoId);
     }
 }

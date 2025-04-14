@@ -19,7 +19,10 @@ public class UserProfileDto {
     private Gender gender;
     private AgeGroup ageGroup;
 
-    public static UserProfileDto fromEntity(User user) {
+    private Double averageRating;
+    private Long totalReviews;
+
+    public static UserProfileDto fromEntity(User user, Double averageRating, Long totalReviews) {
         return UserProfileDto.builder()
                 .kakaoId(user.getKakaoId())
                 .nickname(user.getNickname())
@@ -30,6 +33,11 @@ public class UserProfileDto {
                 .statusMessage(user.getStatusMessage())
                 .gender(user.getGender())
                 .ageGroup(user.getAgeGroup())
+                .averageRating(averageRating)
+                .totalReviews(totalReviews)
                 .build();
+    }
+    public static UserProfileDto fromEntity(User user) {
+        return fromEntity(user, null, null);
     }
 }
