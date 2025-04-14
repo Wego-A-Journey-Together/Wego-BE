@@ -14,6 +14,8 @@ import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
 import com.example.wegobe.global.paging.PageableService;
+import com.example.wegobe.like.repository.LikeRepository;
+import com.example.wegobe.review.repository.ReviewRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +37,8 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     private final GatheringRepository gatheringRepository;
     private final UserRepository userRepository;
     private final GatheringMemberRepository gatheringMemberRepository;
+    private final LikeRepository likeRepository;
+    private final ReviewRepository reviewRepository;
 
     @Value("${thumbnail.url}")
     private String[] DEFAULT_THUMBNAIL_URLS;
@@ -85,8 +89,12 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
     public GatheringResponseDto getGatheringById(Long id) {
         Gathering gathering = gatheringRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 동행을 찾을 수 없습니다."));
-        int acceptedCount = getCurrentParticipants(gathering);
-        return GatheringResponseDto.fromEntity(gathering, acceptedCount);
+
+        int acceptedCount = getCurrentParticipants(gathering);              // 참여자 수
+        int likeCount = likeRepository.countByGathering(gathering);         // 좋아요 수
+        int reviewCount = reviewRepository.countByGathering(gathering);     // 소감 개수
+
+        return GatheringResponseDto.fromEntity(gathering, acceptedCount, likeCount, reviewCount);
     }
 
     /**
@@ -139,8 +147,12 @@ public class GatheringService implements PageableService<Gathering, GatheringLis
         );
 
         updateHashtags(gathering, updateDto.getHashtags()); // 해시태그 별도 update
+
         int acceptedCount = getCurrentParticipants(gathering);
-        return GatheringResponseDto.fromEntity(gathering, acceptedCount);
+        int likeCount = likeRepository.countByGathering(gathering);
+        int reviewCount = reviewRepository.countByGathering(gathering);
+
+        return GatheringResponseDto.fromEntity(gathering, acceptedCount,likeCount, reviewCount);
     }
 
     /**
