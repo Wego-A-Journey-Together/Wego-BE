@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
@@ -45,5 +46,8 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Query("UPDATE ChatMessage m SET m.read = true WHERE m.chatRoom.id = :roomId AND m.sender.kakaoId <> :myId AND m.read = false")
     @Transactional
     void markMessagesAsRead(@Param("roomId") Long roomId, @Param("myId") Long myId);
+
+    Optional<ChatMessage> findTop1ByChatRoomIdOrderBySentAtDesc(Long roomId);
+
 }
 
