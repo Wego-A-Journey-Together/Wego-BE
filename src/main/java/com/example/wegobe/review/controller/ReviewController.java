@@ -49,4 +49,13 @@ public class ReviewController {
     public ResponseEntity<List<GatheringSimpleResponseDto>> getUnwrittenReviewGatherings() {
         return ResponseEntity.ok(reviewService.getUnwrittenReviewGatherings());
     }
+
+    // 특정 유저에게 남겨진 소감 목록 조회
+    @Operation(summary = "특정 유저가 받은 소감 조회", description = "해당 유저가 주최한 동행에 달린 소감을 조회할 수 있습니다.")
+    @GetMapping("/user/{kakaoId}/received")
+    public Page<ReviewResponseDto> getReviewsForUserGatherings(@PathVariable(name = "kakaoId") Long kakaoId,
+                                                               @PageableDefault(page=0, size = 10) Pageable pageable) {
+        return reviewService.getReviewsForUserGatherings(kakaoId, pageable);
+    }
+
 }

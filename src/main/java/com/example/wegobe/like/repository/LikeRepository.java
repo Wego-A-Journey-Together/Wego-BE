@@ -11,7 +11,6 @@ import java.util.Optional;
 public interface LikeRepository extends JpaRepository<Like, Long> {
     Optional<Like> findByUserAndGathering(User user, Gathering gathering);
     boolean existsByUserAndGathering(User user, Gathering gathering);
-    void deleteByUserAndGathering(User user, Gathering gathering);
     List<Like> findByUser(User user);
-
+    int countByGathering(Gathering gathering);
 }
