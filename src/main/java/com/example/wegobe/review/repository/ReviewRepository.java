@@ -6,6 +6,8 @@ import com.example.wegobe.review.domain.Review;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -20,4 +22,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<Review> findAllByGathering_CreatorOrderByCreatedDateDesc(User creator, Pageable pageable);
 
     int countByGathering(Gathering gathering);
+
+    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.gathering.creator.kakaoId = :kakaoId")
+    Double findAverageRatingByKakaoId(@Param("kakaoId") Long kakaoId);
+
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.gathering.creator.kakaoId = :kakaoId")
+    Long countByKakaoId(@Param("kakaoId") Long kakaoId);
 }
