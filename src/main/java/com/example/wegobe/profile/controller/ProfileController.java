@@ -4,6 +4,7 @@ import com.example.wegobe.auth.entity.User;
 import com.example.wegobe.auth.service.UserService;
 import com.example.wegobe.profile.ProfileDto;
 import com.example.wegobe.profile.UserProfileDto;
+import com.example.wegobe.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 public class ProfileController {
 
     private final UserService userService;
+    private final ReviewService reviewService;
+
 
     @Value("${thumbnail.url}")
     private String DEFAULT_THUMBNAIL_URL;
@@ -54,7 +57,9 @@ public class ProfileController {
     @GetMapping("/{kakaoId}")
     public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable Long kakaoId) {
         User user = userService.getUserByKakaoId(kakaoId);
-        return ResponseEntity.ok(UserProfileDto.fromEntity(user));
+        Double avgRating = reviewService.getAverageRatingByKakaoId(kakaoId);
+        Long totalReviews = reviewService.getReviewCountByKakaoId(kakaoId);
+        return ResponseEntity.ok(UserProfileDto.fromEntity(user, avgRating, totalReviews));
     }
 }
 

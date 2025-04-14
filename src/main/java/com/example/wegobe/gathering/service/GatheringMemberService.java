@@ -10,7 +10,9 @@ import com.example.wegobe.gathering.dto.response.GatheringMemberResponseDto;
 import com.example.wegobe.gathering.dto.response.GatheringSimpleResponseDto;
 import com.example.wegobe.gathering.repository.GatheringMemberRepository;
 import com.example.wegobe.gathering.repository.GatheringRepository;
+import com.example.wegobe.profile.UserProfileDto;
 import com.example.wegobe.profile.WriterProfileDto;
+import com.example.wegobe.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,7 @@ public class GatheringMemberService {
     private final GatheringRepository gatheringRepository;
     private final UserService userService;
     private final GatheringService gatheringService;
+    private final ReviewService reviewService;
 
     // 동행 참여 신청
     public void applyGathering(Long gatheringId) {
@@ -126,8 +129,19 @@ public class GatheringMemberService {
 
         return gatheringMemberRepository.findByGatheringAndStatus(gathering, GatheringStatus.ACCEPTED)
                 .stream()
-                .map(GatheringMemberResponseDto::fromEntity)
+                .map(member -> {
+                    User user = member.getUser();
+                    Double averageRating = reviewService.getAverageRatingByKakaoId(user.getKakaoId());
+                    Long totalReviews = reviewService.getReviewCountByKakaoId(user.getKakaoId());
+
+                    return GatheringMemberResponseDto.builder()
+                            .userId(user.getId())
+                            .user(UserProfileDto.fromEntity(user, averageRating, totalReviews)) // 주입!
+                            .status(member.getStatus())
+                            .build();
+                })
                 .collect(Collectors.toList());
+
     }
 
     // 동행 신청이 받아들여진 즉, 내가 참여 중인 동행 목록 조회

@@ -114,4 +114,12 @@ public class ReviewService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public Double getAverageRatingByKakaoId(Long kakaoId) {
+        return reviewRepository.findAverageRatingByKakaoId(kakaoId);
+    }
+
+    public Long getReviewCountByKakaoId(Long kakaoId) {
+        return reviewRepository.countByKakaoId(kakaoId);
+    }
 }
